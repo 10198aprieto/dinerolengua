@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Supabase is the source of truth for authentication and fine records; Firebase is used only for browser analytics, keeping persistence and access control in one backend.

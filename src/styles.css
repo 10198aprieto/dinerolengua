@@ -19,6 +19,8 @@
  */
 
 @theme inline {
+  --font-sans: "Nunito Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -62,26 +64,30 @@
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
+  --radius: 0.5rem;
+  --background: oklch(0.975 0.012 94);
+  --foreground: oklch(0.25 0.025 250);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.129 0.042 264.695);
+  --card-foreground: oklch(0.25 0.025 250);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
-  --secondary: oklch(0.968 0.007 247.896);
-  --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
-  --accent: oklch(0.968 0.007 247.896);
-  --accent-foreground: oklch(0.208 0.042 265.755);
+  --primary: oklch(0.52 0.14 157);
+  --primary-foreground: oklch(0.99 0.005 95);
+  --secondary: oklch(0.92 0.035 88);
+  --secondary-foreground: oklch(0.3 0.04 68);
+  --muted: oklch(0.94 0.012 94);
+  --muted-foreground: oklch(0.5 0.025 250);
+  --accent: oklch(0.9 0.05 195);
+  --accent-foreground: oklch(0.28 0.05 220);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.929 0.013 255.508);
-  --input: oklch(0.929 0.013 255.508);
-  --ring: oklch(0.704 0.04 256.788);
+  --border: oklch(0.87 0.018 90);
+  --input: oklch(0.84 0.022 90);
+  --ring: oklch(0.52 0.14 157);
+  --success: oklch(0.55 0.13 157);
+  --success-soft: oklch(0.93 0.045 157);
+  --warning: oklch(0.68 0.15 68);
+  --warning-soft: oklch(0.94 0.06 78);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -140,5 +146,23 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: var(--font-sans);
   }
 }
+
+@utility font-display { font-family: var(--font-display); letter-spacing: 0; }
+
+@layer components {
+  .login-page { background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px); background-size: 32px 32px; }
+  .class-stamp { display: grid; width: 4rem; height: 4rem; place-items: center; border: 2px solid var(--primary); border-radius: var(--radius); color: var(--primary); font-family: var(--font-display); font-weight: 800; transform: rotate(-2deg); }
+  .class-stamp:nth-child(2) { transform: rotate(2deg); }
+  .empty-state { border: 2px dashed var(--border); border-radius: var(--radius); background: var(--card); }
+  .summary-card { box-shadow: 0 4px 0 var(--border); }
+  .summary-icon-success { background: var(--success-soft); color: var(--success); }
+  .summary-icon-warning { background: var(--warning-soft); color: var(--warning); }
+  .summary-icon-primary { background: color-mix(in oklch, var(--primary) 14%, var(--card)); color: var(--primary); }
+  .record-row { transition: transform 160ms ease, border-color 160ms ease; }
+  .record-row:hover { transform: translateY(-1px); border-color: var(--primary); }
+}
+
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; } }
