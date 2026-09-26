@@ -9,4 +9,4 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-- Supabase is the source of truth for authentication and fine records; Firebase is used only for browser analytics, keeping persistence and access control in one backend.
+- Supabase is the source of truth for authentication and fine records; fine reads are public while all writes remain owner-authenticated, and Firebase is used only for browser analytics.
