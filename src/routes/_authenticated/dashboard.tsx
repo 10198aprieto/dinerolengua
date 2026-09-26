@@ -78,7 +78,10 @@ function Dashboard() {
     const result = editing
       ? await supabase.from("fines").update(payload).eq("id", editing.id)
       : await supabase.from("fines").insert(payload);
-    if (result.error) return toast.error("No se pudo guardar la multa");
+    if (result.error) {
+      toast.error("No se pudo guardar la multa");
+      return;
+    }
     toast.success(editing ? "Multa actualizada" : "Multa añadida");
     setDialogOpen(false);
     setEditing(null);
@@ -87,14 +90,20 @@ function Dashboard() {
 
   async function togglePaid(fine: Fine) {
     const { error } = await supabase.from("fines").update({ is_paid: !fine.is_paid }).eq("id", fine.id);
-    if (error) return toast.error("No se pudo cambiar el estado");
+    if (error) {
+      toast.error("No se pudo cambiar el estado");
+      return;
+    }
     await loadData();
   }
 
   async function removeFine(fine: Fine) {
     if (!window.confirm(`¿Eliminar la multa de ${fine.student_name}?`)) return;
     const { error } = await supabase.from("fines").delete().eq("id", fine.id);
-    if (error) return toast.error("No se pudo eliminar");
+    if (error) {
+      toast.error("No se pudo eliminar");
+      return;
+    }
     toast.success("Multa eliminada");
     await loadData();
   }
