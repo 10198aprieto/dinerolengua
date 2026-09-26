@@ -76,7 +76,7 @@ function Index() {
           </div>
           {signedIn
             ? <Button onClick={() => navigate({ to: "/dashboard" })}><Settings /> <span className="hidden sm:inline">Gestionar</span></Button>
-            : <Button variant="outline" onClick={() => setLoginOpen(true)}><LogIn /> <span className="hidden sm:inline">Iniciar sesión</span></Button>}
+            : <Button variant="outline" onClick={() => setLoginOpen(true)}><LogIn /> <span className="sm:hidden">Entrar</span><span className="hidden sm:inline">Iniciar sesión</span></Button>}
         </div>
       </header>
 
