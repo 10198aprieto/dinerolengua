@@ -1,53 +1,134 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { BookOpen, LockKeyhole, Mail } from "lucide-react";
+import { BookOpen, Check, ChevronRight, Coins, LockKeyhole, LogIn, Mail, Settings, WalletCards } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/")({
   head: () => ({ meta: [
-    { title: "La Hucha de Lengua | Acceso del profesor" },
-    { name: "description", content: "Control privado del dinero de las multas de Lengua de 4.º ESO." },
+    { title: "La Hucha de Lengua | Contador de 4.º ESO" },
+    { name: "description", content: "Consulta pública del dinero recaudado y pendiente en las clases de Lengua de 4.º A, 4.º B y 4.º C." },
     { property: "og:title", content: "La Hucha de Lengua" },
-    { property: "og:description", content: "Control privado de las multas de Lengua de 4.º ESO." },
+    { property: "og:description", content: "Contador público de las multas de Lengua de 4.º ESO." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary" },
   ] }),
   component: Index,
 });
 
+type Fine = Tables<"fines">;
+type ClassName = "4ºA" | "4ºB" | "4ºC";
+const classes: ClassName[] = ["4ºA", "4ºB", "4ºC"];
+const money = (cents: number) => `${(cents / 100).toFixed(2).replace(".", ",")} €`;
+
 function Index() {
   const navigate = useNavigate();
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [fines, setFines] = useState<Fine[]>([]);
+  const [activeClass, setActiveClass] = useState<ClassName>("4ºA");
+  const [status, setStatus] = useState<"all" | "paid" | "pending">("all");
+  const [loading, setLoading] = useState(true);
+  const [loginOpen, setLoginOpen] = useState(false);
+  const [signedIn, setSignedIn] = useState(false);
+  const [loginError, setLoginError] = useState("");
+  const [signingIn, setSigningIn] = useState(false);
+
+  useEffect(() => {
+    void supabase.from("fines").select("*").order("occurred_on", { ascending: false }).order("created_at", { ascending: false }).then(({ data }) => {
+      setFines(data ?? []);
+      setLoading(false);
+    });
+    void supabase.auth.getUser().then(({ data }) => setSignedIn(Boolean(data.user)));
+  }, []);
+
+  const classFines = fines.filter((fine) => fine.class_name === activeClass);
+  const visibleFines = classFines.filter((fine) => status === "all" || (status === "paid" ? fine.is_paid : !fine.is_paid));
+  const totals = useMemo(() => {
+    const paid = classFines.filter((fine) => fine.is_paid).reduce((sum, fine) => sum + fine.amount_cents, 0);
+    const pending = classFines.filter((fine) => !fine.is_paid).reduce((sum, fine) => sum + fine.amount_cents, 0);
+    return { paid, pending, total: paid + pending };
+  }, [classFines]);
 
   async function signIn(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setLoading(true); setError("");
+    setSigningIn(true);
+    setLoginError("");
     const form = new FormData(event.currentTarget);
-    const { error: signInError } = await supabase.auth.signInWithPassword({ email: String(form.get("email")), password: String(form.get("password")) });
-    setLoading(false);
-    if (signInError) return setError("El correo o la contraseña no son correctos.");
+    const { error } = await supabase.auth.signInWithPassword({ email: String(form.get("email")), password: String(form.get("password")) });
+    setSigningIn(false);
+    if (error) {
+      setLoginError("El correo o la contraseña no son correctos.");
+      return;
+    }
     await navigate({ to: "/dashboard" });
   }
 
   return (
-    <main className="login-page min-h-screen px-4 py-8 sm:py-14">
-      <div className="mx-auto grid min-h-[calc(100vh-7rem)] max-w-5xl items-center gap-12 lg:grid-cols-[1.15fr_.85fr]">
-        <section className="hidden lg:block"><div className="mb-7 flex size-16 items-center justify-center rounded-md bg-primary text-primary-foreground"><BookOpen className="size-8" /></div><p className="mb-3 text-sm font-bold uppercase text-primary">Lengua · 4.º ESO</p><h1 className="font-display max-w-xl text-6xl font-bold leading-[1.05]">Cada palabra cuenta.</h1><p className="mt-5 max-w-lg text-xl leading-relaxed text-muted-foreground">Una forma sencilla de llevar la cuenta de las multas de 4.º A, 4.º B y 4.º C.</p><div className="mt-12 flex gap-3">{["4ºA", "4ºB", "4ºC"].map((item) => <span key={item} className="class-stamp">{item}</span>)}</div></section>
-        <section className="rounded-md border border-border bg-card p-6 shadow-lg sm:p-8">
-          <div className="mb-8 text-center lg:text-left"><div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-md bg-secondary text-secondary-foreground lg:mx-0"><LockKeyhole /></div><h2 className="font-display text-3xl font-bold">Acceso del profesor</h2><p className="mt-2 text-sm text-muted-foreground">Entra para gestionar la hucha de tus clases.</p></div>
-          <form className="space-y-5" onSubmit={signIn}>
-            <div className="space-y-2"><Label htmlFor="email">Correo electrónico</Label><div className="relative"><Mail className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><Input className="h-11 pl-10" id="email" name="email" type="email" autoComplete="email" placeholder="profesor@centro.es" required /></div></div>
-            <div className="space-y-2"><Label htmlFor="password">Contraseña</Label><div className="relative"><LockKeyhole className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><Input className="h-11 pl-10" id="password" name="password" type="password" autoComplete="current-password" required /></div></div>
-            {error && <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive" role="alert">{error}</p>}
-            <Button type="submit" size="lg" className="w-full" disabled={loading}>{loading ? "Entrando…" : "Entrar al panel"}</Button>
-          </form>
-          <p className="mt-6 text-center text-xs text-muted-foreground">Acceso privado · Solo personal autorizado</p>
+    <main className="min-h-screen bg-background">
+      <header className="border-b border-border bg-card">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
+          <div className="flex items-center gap-3">
+            <div className="flex size-10 items-center justify-center rounded-md bg-primary text-primary-foreground"><BookOpen /></div>
+            <div><p className="font-display text-lg font-bold leading-tight">La Hucha de Lengua</p><p className="text-xs text-muted-foreground">IES · 4.º ESO</p></div>
+          </div>
+          {signedIn
+            ? <Button onClick={() => navigate({ to: "/dashboard" })}><Settings /> <span className="hidden sm:inline">Gestionar</span></Button>
+            : <Button variant="outline" onClick={() => setLoginOpen(true)}><LogIn /> <span className="hidden sm:inline">Iniciar sesión</span></Button>}
+        </div>
+      </header>
+
+      <div className="mx-auto max-w-6xl px-4 py-7 sm:px-6 sm:py-10">
+        <div className="mb-7"><p className="mb-1 text-sm font-semibold text-primary">CURSO 2026 · 2027</p><h1 className="font-display text-3xl font-bold sm:text-4xl">Contador de multas</h1><p className="mt-2 text-muted-foreground">Cada palabra cuenta. Cada céntimo también.</p></div>
+
+        <div className="mb-6 grid grid-cols-3 gap-2 rounded-md bg-secondary p-1.5">
+          {classes.map((className) => <Button key={className} variant={activeClass === className ? "default" : "ghost"} className="h-11" onClick={() => setActiveClass(className)}>{className}</Button>)}
+        </div>
+
+        <section className="mb-8 grid gap-3 sm:grid-cols-3">
+          <Summary icon={<Check />} label="Recaudado" value={money(totals.paid)} tone="success" />
+          <Summary icon={<WalletCards />} label="Pendiente" value={money(totals.pending)} tone="warning" />
+          <Summary icon={<Coins />} label="Total" value={money(totals.total)} tone="primary" />
+        </section>
+
+        <section>
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div><h2 className="font-display text-2xl font-bold">Historial de {activeClass}</h2><p className="text-sm text-muted-foreground">{classFines.length} {classFines.length === 1 ? "registro" : "registros"}</p></div>
+            <div className="flex gap-1 rounded-md border border-border bg-card p-1">
+              {([['all', 'Todas'], ['pending', 'Pendientes'], ['paid', 'Pagadas']] as const).map(([value, label]) => <Button key={value} size="sm" variant={status === value ? "secondary" : "ghost"} onClick={() => setStatus(value)}>{label}</Button>)}
+            </div>
+          </div>
+          {loading ? <div className="py-16 text-center text-muted-foreground">Cargando registros…</div> : visibleFines.length === 0 ? (
+            <div className="empty-state py-16 text-center"><Coins className="mx-auto mb-4 size-10 text-muted-foreground" /><h3 className="font-display text-xl font-bold">La hucha está vacía</h3><p className="mt-1 text-sm text-muted-foreground">No hay multas en esta vista.</p></div>
+          ) : (
+            <div className="space-y-2">{visibleFines.map((fine) => (
+              <article key={fine.id} className="record-row grid grid-cols-[1fr_auto] items-center gap-3 rounded-md border border-border bg-card px-4 py-3 sm:grid-cols-[1fr_120px_130px]">
+                <div className="min-w-0"><p className="truncate font-semibold">{fine.student_name}</p><p className="truncate text-xs text-muted-foreground">{new Date(`${fine.occurred_on}T12:00:00`).toLocaleDateString("es-ES", { day: "numeric", month: "short", year: "numeric" })}{fine.notes ? ` · ${fine.notes}` : ""}</p></div>
+                <p className="font-display text-xl font-bold">{money(fine.amount_cents)}</p>
+                <div className={`inline-flex h-9 items-center gap-2 justify-self-start rounded-md border px-3 text-sm font-medium ${fine.is_paid ? "bg-secondary" : "bg-background"}`}>{fine.is_paid ? <Check className="size-4" /> : <ChevronRight className="size-4" />}{fine.is_paid ? "Pagada" : "Pendiente"}</div>
+              </article>
+            ))}</div>
+          )}
         </section>
       </div>
+
+      <Dialog open={loginOpen} onOpenChange={setLoginOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader><DialogTitle className="font-display text-2xl">Acceso del profesor</DialogTitle><DialogDescription>Inicia sesión para añadir y gestionar multas.</DialogDescription></DialogHeader>
+          <form className="space-y-4" onSubmit={signIn}>
+            <div className="space-y-2"><Label htmlFor="email">Correo electrónico</Label><div className="relative"><Mail className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><Input className="pl-10" id="email" name="email" type="email" autoComplete="email" required /></div></div>
+            <div className="space-y-2"><Label htmlFor="password">Contraseña</Label><div className="relative"><LockKeyhole className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><Input className="pl-10" id="password" name="password" type="password" autoComplete="current-password" required /></div></div>
+            {loginError && <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive" role="alert">{loginError}</p>}
+            <Button type="submit" className="w-full" disabled={signingIn}>{signingIn ? "Entrando…" : "Entrar al panel"}</Button>
+          </form>
+        </DialogContent>
+      </Dialog>
     </main>
   );
+}
+
+function Summary({ icon, label, value, tone }: { icon: React.ReactNode; label: string; value: string; tone: "success" | "warning" | "primary" }) {
+  return <div className="summary-card flex items-center gap-4 rounded-md border border-border bg-card p-4"><div className={`summary-icon summary-icon-${tone} flex size-11 shrink-0 items-center justify-center rounded-md`}>{icon}</div><div><p className="text-xs font-semibold uppercase text-muted-foreground">{label}</p><p className="font-display text-2xl font-bold">{value}</p></div></div>;
 }

@@ -80,13 +80,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "La Hucha de Lengua" },
-      { name: "description", content: "Control privado de las multas de Lengua." },
+      { name: "description", content: "Contador público de las multas de Lengua de 4.º ESO." },
       { name: "author", content: "La Hucha de Lengua" },
       { property: "og:title", content: "La Hucha de Lengua" },
-      { property: "og:description", content: "Control privado de las multas de Lengua." },
+      { property: "og:description", content: "Contador público de las multas de Lengua de 4.º ESO." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -107,7 +106,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="es">
       <head>
         <HeadContent />
       </head>
