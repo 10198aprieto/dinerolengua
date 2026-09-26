@@ -14,7 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      fines: {
+        Row: {
+          amount_cents: number
+          class_name: string
+          created_at: string
+          id: string
+          is_paid: boolean
+          notes: string | null
+          occurred_on: string
+          student_name: string
+          teacher_id: string
+          updated_at: string
+        }
+        Insert: {
+          amount_cents: number
+          class_name: string
+          created_at?: string
+          id?: string
+          is_paid?: boolean
+          notes?: string | null
+          occurred_on?: string
+          student_name: string
+          teacher_id: string
+          updated_at?: string
+        }
+        Update: {
+          amount_cents?: number
+          class_name?: string
+          created_at?: string
+          id?: string
+          is_paid?: boolean
+          notes?: string | null
+          occurred_on?: string
+          student_name?: string
+          teacher_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
