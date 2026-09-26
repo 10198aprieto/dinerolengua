@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { BookOpen, Check, ChevronRight, Coins, LockKeyhole, LogIn, Mail, Settings, WalletCards } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { createTeacherAccount } from "@/lib/teacher-account.functions";
 import type { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,6 +36,7 @@ function Index() {
   const [signedIn, setSignedIn] = useState(false);
   const [loginError, setLoginError] = useState("");
   const [signingIn, setSigningIn] = useState(false);
+  const [mode, setMode] = useState<"login" | "signup">("login");
 
   useEffect(() => {
     void supabase.from("fines").select("*").order("occurred_on", { ascending: false }).order("created_at", { ascending: false }).then(({ data }) => {
@@ -61,6 +63,35 @@ function Index() {
     setSigningIn(false);
     if (error) {
       setLoginError("El correo o la contraseña no son correctos.");
+      return;
+    }
+    await navigate({ to: "/dashboard" });
+  }
+
+  async function signUp(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSigningIn(true);
+    setLoginError("");
+    const form = new FormData(event.currentTarget);
+    const email = String(form.get("email"));
+    const password = String(form.get("password"));
+    try {
+      await createTeacherAccount({ data: {
+        email,
+        password,
+        displayName: String(form.get("displayName")),
+        inviteCode: String(form.get("inviteCode")),
+      } });
+    } catch (error) {
+      setSigningIn(false);
+      setLoginError(error instanceof Error ? error.message : "No se pudo crear la cuenta.");
+      return;
+    }
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    setSigningIn(false);
+    if (error) {
+      setLoginError("La cuenta se creó, pero no se pudo iniciar sesión. Prueba a entrar.");
+      setMode("login");
       return;
     }
     await navigate({ to: "/dashboard" });
