@@ -38,6 +38,7 @@ function Dashboard() {
   const [activeClass, setActiveClass] = useState<ClassName>("4ºA");
   const [status, setStatus] = useState<"all" | "paid" | "pending">("all");
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const [editing, setEditing] = useState<Fine | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -113,6 +114,20 @@ function Dashboard() {
     await navigate({ to: "/", replace: true });
   }
 
+  async function saveProfile(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const displayName = String(form.get("display_name") ?? "").trim();
+    const { error } = await supabase.from("profiles").upsert({ id: user.id, display_name: displayName });
+    if (error) {
+      toast.error("No se pudo guardar el perfil");
+      return;
+    }
+    setProfileName(displayName);
+    setProfileOpen(false);
+    toast.success("Perfil actualizado");
+  }
+
   function openCreate() { setEditing(null); setDialogOpen(true); }
   function openEdit(fine: Fine) { setEditing(fine); setActiveClass(fine.class_name as ClassName); setDialogOpen(true); }
 
@@ -125,7 +140,7 @@ function Dashboard() {
             <div><p className="font-display text-lg font-bold leading-tight">La Hucha de Lengua</p><p className="text-xs text-muted-foreground">IES · 4.º ESO</p></div>
           </div>
           <div className="flex items-center gap-2">
-            <span className="hidden items-center gap-2 text-sm text-muted-foreground sm:flex"><UserRound className="size-4" />{profileName}</span>
+            <Button variant="ghost" className="hidden sm:inline-flex" onClick={() => setProfileOpen(true)}><UserRound />{profileName}</Button>
             <Button variant="ghost" size="icon" onClick={signOut} aria-label="Cerrar sesión" title="Cerrar sesión"><LogOut /></Button>
           </div>
         </div>
@@ -182,6 +197,15 @@ function Dashboard() {
             <label className="flex items-center gap-3 rounded-md border border-border p-3"><input type="checkbox" name="is_paid" defaultChecked={editing?.is_paid} className="size-4 accent-primary" /><span className="text-sm font-medium">Ya está pagada</span></label>
             <div className="space-y-2"><Label htmlFor="notes">Nota <span className="font-normal text-muted-foreground">(opcional)</span></Label><Textarea id="notes" name="notes" defaultValue={editing?.notes ?? ""} placeholder="Contexto o recordatorio" maxLength={500} /></div>
             <Button type="submit" size="lg" className="w-full">{editing ? "Guardar cambios" : "Añadir a la hucha"}</Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={profileOpen} onOpenChange={setProfileOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader><DialogTitle className="font-display text-2xl">Perfil del profesor</DialogTitle><DialogDescription>Este nombre aparece en la cabecera del panel.</DialogDescription></DialogHeader>
+          <form className="space-y-4" onSubmit={saveProfile}>
+            <div className="space-y-2"><Label htmlFor="display_name">Nombre visible</Label><Input id="display_name" name="display_name" defaultValue={profileName} required maxLength={80} /></div>
+            <Button type="submit" className="w-full">Guardar nombre</Button>
           </form>
         </DialogContent>
       </Dialog>
