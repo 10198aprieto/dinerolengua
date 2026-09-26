@@ -145,15 +145,31 @@ function Index() {
         </section>
       </div>
 
-      <Dialog open={loginOpen} onOpenChange={setLoginOpen}>
+      <Dialog open={loginOpen} onOpenChange={(open) => { setLoginOpen(open); if (!open) { setMode("login"); setLoginError(""); } }}>
         <DialogContent className="sm:max-w-sm">
-          <DialogHeader><DialogTitle className="font-display text-2xl">Acceso del profesor</DialogTitle><DialogDescription>Inicia sesión para añadir y gestionar multas.</DialogDescription></DialogHeader>
-          <form className="space-y-4" onSubmit={signIn}>
-            <div className="space-y-2"><Label htmlFor="email">Correo electrónico</Label><div className="relative"><Mail className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><Input className="pl-10" id="email" name="email" type="email" autoComplete="email" required /></div></div>
-            <div className="space-y-2"><Label htmlFor="password">Contraseña</Label><div className="relative"><LockKeyhole className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><Input className="pl-10" id="password" name="password" type="password" autoComplete="current-password" required /></div></div>
-            {loginError && <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive" role="alert">{loginError}</p>}
-            <Button type="submit" className="w-full" disabled={signingIn}>{signingIn ? "Entrando…" : "Entrar al panel"}</Button>
-          </form>
+          <DialogHeader>
+            <DialogTitle className="font-display text-2xl">{mode === "login" ? "Acceso del profesor" : "Crear cuenta"}</DialogTitle>
+            <DialogDescription>{mode === "login" ? "Inicia sesión para añadir y gestionar multas." : "Necesitas el código de invitación del centro."}</DialogDescription>
+          </DialogHeader>
+          {mode === "login" ? (
+            <form className="space-y-4" onSubmit={signIn}>
+              <div className="space-y-2"><Label htmlFor="email">Correo electrónico</Label><div className="relative"><Mail className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><Input className="pl-10" id="email" name="email" type="email" autoComplete="email" required /></div></div>
+              <div className="space-y-2"><Label htmlFor="password">Contraseña</Label><div className="relative"><LockKeyhole className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><Input className="pl-10" id="password" name="password" type="password" autoComplete="current-password" required /></div></div>
+              {loginError && <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive" role="alert">{loginError}</p>}
+              <Button type="submit" className="w-full" disabled={signingIn}>{signingIn ? "Entrando…" : "Entrar al panel"}</Button>
+              <p className="text-center text-sm text-muted-foreground">¿Aún no tienes cuenta? <button type="button" className="font-semibold text-primary underline-offset-4 hover:underline" onClick={() => { setMode("signup"); setLoginError(""); }}>Crear cuenta</button></p>
+            </form>
+          ) : (
+            <form className="space-y-4" onSubmit={signUp}>
+              <div className="space-y-2"><Label htmlFor="displayName">Nombre y apellidos</Label><Input id="displayName" name="displayName" autoComplete="name" maxLength={80} required /></div>
+              <div className="space-y-2"><Label htmlFor="signup-email">Correo electrónico</Label><div className="relative"><Mail className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><Input className="pl-10" id="signup-email" name="email" type="email" autoComplete="email" required /></div></div>
+              <div className="space-y-2"><Label htmlFor="signup-password">Contraseña</Label><div className="relative"><LockKeyhole className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><Input className="pl-10" id="signup-password" name="password" type="password" autoComplete="new-password" minLength={8} required /></div><p className="text-xs text-muted-foreground">Mínimo 8 caracteres.</p></div>
+              <div className="space-y-2"><Label htmlFor="inviteCode">Código de invitación</Label><Input id="inviteCode" name="inviteCode" autoComplete="off" required /></div>
+              {loginError && <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive" role="alert">{loginError}</p>}
+              <Button type="submit" className="w-full" disabled={signingIn}>{signingIn ? "Creando cuenta…" : "Crear cuenta y entrar"}</Button>
+              <p className="text-center text-sm text-muted-foreground">¿Ya tienes cuenta? <button type="button" className="font-semibold text-primary underline-offset-4 hover:underline" onClick={() => { setMode("login"); setLoginError(""); }}>Iniciar sesión</button></p>
+            </form>
+          )}
         </DialogContent>
       </Dialog>
     </main>
