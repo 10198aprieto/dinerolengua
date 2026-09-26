@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { BookOpen, Check, ChevronRight, Coins, LogOut, Pencil, Plus, Trash2, UserRound, WalletCards } from "lucide-react";
+import { BookOpen, Check, ChevronRight, Coins, LogOut, Pencil, PiggyBank, Plus, Trash2, UserRound, WalletCards, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
@@ -41,6 +41,42 @@ function Dashboard() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [editing, setEditing] = useState<Fine | null>(null);
   const [loading, setLoading] = useState(true);
+  const [celebrating, setCelebrating] = useState(false);
+  const celebrationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => () => {
+    if (celebrationTimer.current) clearTimeout(celebrationTimer.current);
+  }, []);
+
+  function playCoinSound() {
+    const AudioContextClass = window.AudioContext ?? window.webkitAudioContext;
+    if (!AudioContextClass) return;
+    const context = new AudioContextClass();
+    const now = context.currentTime;
+    const gain = context.createGain();
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.2, now + 0.012);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.36);
+    gain.connect(context.destination);
+
+    [1046, 1568].forEach((frequency, index) => {
+      const oscillator = context.createOscillator();
+      oscillator.type = "sine";
+      oscillator.frequency.setValueAtTime(frequency, now + index * 0.07);
+      oscillator.frequency.exponentialRampToValueAtTime(frequency * 0.82, now + 0.22 + index * 0.07);
+      oscillator.connect(gain);
+      oscillator.start(now + index * 0.07);
+      oscillator.stop(now + 0.3 + index * 0.07);
+    });
+    window.setTimeout(() => void context.close(), 500);
+  }
+
+  function celebrateDeposit() {
+    if (celebrationTimer.current) clearTimeout(celebrationTimer.current);
+    setCelebrating(true);
+    playCoinSound();
+    celebrationTimer.current = setTimeout(() => setCelebrating(false), 2200);
+  }
 
   async function loadData() {
     const [{ data: fineRows, error }, { data: profile }] = await Promise.all([
@@ -76,6 +112,7 @@ function Dashboard() {
       is_paid: form.get("is_paid") === "on",
       notes: String(form.get("notes") ?? "").trim() || null,
     };
+    const wasEditing = Boolean(editing);
     const result = editing
       ? await supabase.from("fines").update(payload).eq("id", editing.id)
       : await supabase.from("fines").insert(payload);
@@ -83,9 +120,10 @@ function Dashboard() {
       toast.error("No se pudo guardar la multa");
       return;
     }
-    toast.success(editing ? "Multa actualizada" : "Multa añadida");
+    toast.success(wasEditing ? "Multa actualizada" : "Multa añadida");
     setDialogOpen(false);
     setEditing(null);
+    if (!wasEditing) celebrateDeposit();
     await loadData();
   }
 
@@ -209,6 +247,21 @@ function Dashboard() {
           </form>
         </DialogContent>
       </Dialog>
+      {celebrating && (
+        <div className="piggy-celebration fixed inset-0 z-50 grid place-items-center bg-foreground/25 px-4" role="status" aria-live="polite">
+          <div className="relative flex w-full max-w-xs flex-col items-center rounded-md border border-border bg-card px-6 pb-7 pt-12 text-center shadow-xl">
+            <Button variant="ghost" size="icon" className="absolute right-2 top-2" onClick={() => setCelebrating(false)} aria-label="Cerrar animación" title="Cerrar">
+              <X />
+            </Button>
+            <div className="piggy-scene relative mb-4 h-32 w-44" aria-hidden="true">
+              {[0, 1, 2].map((coin) => <span key={coin} className={`falling-coin falling-coin-${coin}`}>€</span>)}
+              <PiggyBank className="piggy-bank absolute bottom-0 left-1/2 size-28 -translate-x-1/2 text-primary" strokeWidth={1.7} />
+            </div>
+            <p className="font-display text-2xl font-bold">¡A la hucha!</p>
+            <p className="mt-1 text-sm text-muted-foreground">La multa se ha guardado correctamente.</p>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

@@ -9,3 +9,4 @@
 - [x] Añadir edición del nombre visible del profesor.
 - [x] Validar compilación, seguridad y presentación adaptable.
 - [x] Añadir «Crear cuenta» con código de invitación (TEACHER_INVITE_CODE) en la ventana de acceso.
+- [x] Celebrar cada nueva multa con una hucha animada, monedas y sonido.
