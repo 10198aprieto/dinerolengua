@@ -49,9 +49,7 @@ function Dashboard() {
   }, []);
 
   function playCoinSound() {
-    const AudioContextClass = window.AudioContext ?? window.webkitAudioContext;
-    if (!AudioContextClass) return;
-    const context = new AudioContextClass();
+    const context = new AudioContext();
     const now = context.currentTime;
     const gain = context.createGain();
     gain.gain.setValueAtTime(0.0001, now);
