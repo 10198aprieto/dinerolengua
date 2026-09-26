@@ -8,4 +8,4 @@
 - [x] Añadir altas, edición, pago, filtros y eliminación de multas.
 - [x] Añadir edición del nombre visible del profesor.
 - [x] Validar compilación, seguridad y presentación adaptable.
-- [ ] Crear la cuenta inicial del profesor en Supabase (requiere el correo del profesor o creación manual).
+- [x] Añadir «Crear cuenta» con código de invitación (TEACHER_INVITE_CODE) en la ventana de acceso.
