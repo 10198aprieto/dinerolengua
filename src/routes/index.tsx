@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { BookOpen, Check, ChevronRight, Coins, LockKeyhole, LogIn, Mail, Settings, WalletCards } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { createTeacherAccount } from "@/lib/teacher-account.functions";
 import type { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,6 +36,7 @@ function Index() {
   const [signedIn, setSignedIn] = useState(false);
   const [loginError, setLoginError] = useState("");
   const [signingIn, setSigningIn] = useState(false);
+  const [mode, setMode] = useState<"login" | "signup">("login");
 
   useEffect(() => {
     void supabase.from("fines").select("*").order("occurred_on", { ascending: false }).order("created_at", { ascending: false }).then(({ data }) => {
@@ -61,6 +63,35 @@ function Index() {
     setSigningIn(false);
     if (error) {
       setLoginError("El correo o la contraseña no son correctos.");
+      return;
+    }
+    await navigate({ to: "/dashboard" });
+  }
+
+  async function signUp(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSigningIn(true);
+    setLoginError("");
+    const form = new FormData(event.currentTarget);
+    const email = String(form.get("email"));
+    const password = String(form.get("password"));
+    try {
+      await createTeacherAccount({ data: {
+        email,
+        password,
+        displayName: String(form.get("displayName")),
+        inviteCode: String(form.get("inviteCode")),
+      } });
+    } catch (error) {
+      setSigningIn(false);
+      setLoginError(error instanceof Error ? error.message : "No se pudo crear la cuenta.");
+      return;
+    }
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    setSigningIn(false);
+    if (error) {
+      setLoginError("La cuenta se creó, pero no se pudo iniciar sesión. Prueba a entrar.");
+      setMode("login");
       return;
     }
     await navigate({ to: "/dashboard" });
@@ -114,15 +145,31 @@ function Index() {
         </section>
       </div>
 
-      <Dialog open={loginOpen} onOpenChange={setLoginOpen}>
+      <Dialog open={loginOpen} onOpenChange={(open) => { setLoginOpen(open); if (!open) { setMode("login"); setLoginError(""); } }}>
         <DialogContent className="sm:max-w-sm">
-          <DialogHeader><DialogTitle className="font-display text-2xl">Acceso del profesor</DialogTitle><DialogDescription>Inicia sesión para añadir y gestionar multas.</DialogDescription></DialogHeader>
-          <form className="space-y-4" onSubmit={signIn}>
-            <div className="space-y-2"><Label htmlFor="email">Correo electrónico</Label><div className="relative"><Mail className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><Input className="pl-10" id="email" name="email" type="email" autoComplete="email" required /></div></div>
-            <div className="space-y-2"><Label htmlFor="password">Contraseña</Label><div className="relative"><LockKeyhole className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><Input className="pl-10" id="password" name="password" type="password" autoComplete="current-password" required /></div></div>
-            {loginError && <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive" role="alert">{loginError}</p>}
-            <Button type="submit" className="w-full" disabled={signingIn}>{signingIn ? "Entrando…" : "Entrar al panel"}</Button>
-          </form>
+          <DialogHeader>
+            <DialogTitle className="font-display text-2xl">{mode === "login" ? "Acceso del profesor" : "Crear cuenta"}</DialogTitle>
+            <DialogDescription>{mode === "login" ? "Inicia sesión para añadir y gestionar multas." : "Necesitas el código de invitación del centro."}</DialogDescription>
+          </DialogHeader>
+          {mode === "login" ? (
+            <form className="space-y-4" onSubmit={signIn}>
+              <div className="space-y-2"><Label htmlFor="email">Correo electrónico</Label><div className="relative"><Mail className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><Input className="pl-10" id="email" name="email" type="email" autoComplete="email" required /></div></div>
+              <div className="space-y-2"><Label htmlFor="password">Contraseña</Label><div className="relative"><LockKeyhole className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><Input className="pl-10" id="password" name="password" type="password" autoComplete="current-password" required /></div></div>
+              {loginError && <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive" role="alert">{loginError}</p>}
+              <Button type="submit" className="w-full" disabled={signingIn}>{signingIn ? "Entrando…" : "Entrar al panel"}</Button>
+              <p className="text-center text-sm text-muted-foreground">¿Aún no tienes cuenta? <button type="button" className="font-semibold text-primary underline-offset-4 hover:underline" onClick={() => { setMode("signup"); setLoginError(""); }}>Crear cuenta</button></p>
+            </form>
+          ) : (
+            <form className="space-y-4" onSubmit={signUp}>
+              <div className="space-y-2"><Label htmlFor="displayName">Nombre y apellidos</Label><Input id="displayName" name="displayName" autoComplete="name" maxLength={80} required /></div>
+              <div className="space-y-2"><Label htmlFor="signup-email">Correo electrónico</Label><div className="relative"><Mail className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><Input className="pl-10" id="signup-email" name="email" type="email" autoComplete="email" required /></div></div>
+              <div className="space-y-2"><Label htmlFor="signup-password">Contraseña</Label><div className="relative"><LockKeyhole className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><Input className="pl-10" id="signup-password" name="password" type="password" autoComplete="new-password" minLength={8} required /></div><p className="text-xs text-muted-foreground">Mínimo 8 caracteres.</p></div>
+              <div className="space-y-2"><Label htmlFor="inviteCode">Código de invitación</Label><Input id="inviteCode" name="inviteCode" autoComplete="off" required /></div>
+              {loginError && <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive" role="alert">{loginError}</p>}
+              <Button type="submit" className="w-full" disabled={signingIn}>{signingIn ? "Creando cuenta…" : "Crear cuenta y entrar"}</Button>
+              <p className="text-center text-sm text-muted-foreground">¿Ya tienes cuenta? <button type="button" className="font-semibold text-primary underline-offset-4 hover:underline" onClick={() => { setMode("login"); setLoginError(""); }}>Iniciar sesión</button></p>
+            </form>
+          )}
         </DialogContent>
       </Dialog>
     </main>
