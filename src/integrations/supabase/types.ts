@@ -23,6 +23,7 @@ export type Database = {
           is_paid: boolean
           notes: string | null
           occurred_on: string
+          student_id: string | null
           student_name: string
           teacher_id: string
           updated_at: string
@@ -35,6 +36,7 @@ export type Database = {
           is_paid?: boolean
           notes?: string | null
           occurred_on?: string
+          student_id?: string | null
           student_name: string
           teacher_id: string
           updated_at?: string
@@ -47,11 +49,20 @@ export type Database = {
           is_paid?: boolean
           notes?: string | null
           occurred_on?: string
+          student_id?: string | null
           student_name?: string
           teacher_id?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fines_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -74,12 +85,42 @@ export type Database = {
         }
         Relationships: []
       }
+      students: {
+        Row: {
+          class_name: string
+          created_at: string
+          email: string | null
+          full_name: string
+          id: string
+          teacher_id: string
+          updated_at: string
+        }
+        Insert: {
+          class_name: string
+          created_at?: string
+          email?: string | null
+          full_name: string
+          id?: string
+          teacher_id: string
+          updated_at?: string
+        }
+        Update: {
+          class_name?: string
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+          teacher_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_reminder_token: { Args: never; Returns: string }
     }
     Enums: {
       [_ in never]: never

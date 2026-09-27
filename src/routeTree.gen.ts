@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as ApiPublicRemindersRouteImport } from './routes/api/public/reminders'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -27,32 +28,46 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiPublicRemindersRoute = ApiPublicRemindersRouteImport.update({
+  id: '/api/public/reminders',
+  path: '/api/public/reminders',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/api/public/reminders': typeof ApiPublicRemindersRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/api/public/reminders': typeof ApiPublicRemindersRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/api/public/reminders': typeof ApiPublicRemindersRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard'
+  fullPaths: '/' | '/dashboard' | '/api/public/reminders'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard'
-  id: '__root__' | '/' | '/_authenticated' | '/_authenticated/dashboard'
+  to: '/' | '/dashboard' | '/api/public/reminders'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/_authenticated/dashboard'
+    | '/api/public/reminders'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  ApiPublicRemindersRoute: typeof ApiPublicRemindersRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -78,6 +93,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/reminders': {
+      id: '/api/public/reminders'
+      path: '/api/public/reminders'
+      fullPath: '/api/public/reminders'
+      preLoaderRoute: typeof ApiPublicRemindersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -95,6 +117,7 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  ApiPublicRemindersRoute: ApiPublicRemindersRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
