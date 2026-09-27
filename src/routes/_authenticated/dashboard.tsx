@@ -25,6 +25,7 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 });
 
 type Fine = Tables<"fines">;
+type Student = Tables<"students">;
 type ClassName = "4ºA" | "4ºB" | "4ºC";
 const classes: ClassName[] = ["4ºA", "4ºB", "4ºC"];
 const amounts = [10, 20, 30, 40, 50];
@@ -42,6 +43,23 @@ function Dashboard() {
   const [editing, setEditing] = useState<Fine | null>(null);
   const [loading, setLoading] = useState(true);
   const [celebrating, setCelebrating] = useState(false);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [studentsOpen, setStudentsOpen] = useState(false);
+
+  async function saveStudentEmail(student: Student, email: string) {
+    const value = email.trim() || null;
+    if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+      toast.error("Correo no válido");
+      return;
+    }
+    const { error } = await supabase.from("students").update({ email: value }).eq("id", student.id);
+    if (error) {
+      toast.error("No se pudo guardar el correo");
+      return;
+    }
+    setStudents((prev) => prev.map((s) => (s.id === student.id ? { ...s, email: value } : s)));
+    toast.success(`Correo de ${student.full_name} guardado`);
+  }
   const celebrationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => () => {
@@ -77,12 +95,14 @@ function Dashboard() {
   }
 
   async function loadData() {
-    const [{ data: fineRows, error }, { data: profile }] = await Promise.all([
+    const [{ data: fineRows, error }, { data: profile }, { data: studentRows }] = await Promise.all([
       supabase.from("fines").select("*").order("occurred_on", { ascending: false }).order("created_at", { ascending: false }),
       supabase.from("profiles").select("display_name").eq("id", user.id).maybeSingle(),
+      supabase.from("students").select("*").order("full_name"),
     ]);
     if (error) toast.error("No se pudieron cargar los registros");
     setFines(fineRows ?? []);
+    setStudents(studentRows ?? []);
     if (profile?.display_name) setProfileName(profile.display_name);
     else await supabase.from("profiles").upsert({ id: user.id, display_name: "Profesor" });
     setLoading(false);
@@ -98,13 +118,27 @@ function Dashboard() {
     return { paid, pending, total: paid + pending };
   }, [classFines]);
 
+  async function ensureStudent(name: string, className: ClassName) {
+    const existing = students.find((s) => s.class_name === className && s.full_name.toLowerCase() === name.toLowerCase());
+    if (existing) return existing.id;
+    const { data, error } = await supabase.from("students").insert({ teacher_id: user.id, class_name: className, full_name: name }).select("id").single();
+    if (error) {
+      const { data: found } = await supabase.from("students").select("id").eq("class_name", className).ilike("full_name", name).maybeSingle();
+      return found?.id ?? null;
+    }
+    return data.id;
+  }
+
   async function saveFine(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
+    const studentName = String(form.get("student_name") ?? "").trim();
+    const studentId = await ensureStudent(studentName, activeClass);
     const payload = {
       teacher_id: user.id,
       class_name: activeClass,
-      student_name: String(form.get("student_name") ?? "").trim(),
+      student_name: studentName,
+      student_id: studentId,
       amount_cents: Number(form.get("amount_cents")),
       occurred_on: String(form.get("occurred_on")),
       is_paid: form.get("is_paid") === "on",
