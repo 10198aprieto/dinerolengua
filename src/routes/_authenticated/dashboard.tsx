@@ -219,7 +219,7 @@ function Dashboard() {
       <div className="mx-auto max-w-6xl px-4 py-7 sm:px-6 sm:py-10">
         <div className="mb-7 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
           <div><p className="mb-1 text-sm font-semibold text-primary">CURSO 2026 · 2027</p><h1 className="font-display text-3xl font-bold sm:text-4xl">Control de multas</h1><p className="mt-2 text-muted-foreground">Cada palabra cuenta. Cada céntimo también.</p></div>
-          <Button size="lg" onClick={openCreate}><Plus /> Nueva multa</Button>
+          <div className="flex gap-2"><Button size="lg" variant="outline" onClick={() => setStudentsOpen(true)}><UserRound /> Alumnos</Button><Button size="lg" onClick={openCreate}><Plus /> Nueva multa</Button></div>
         </div>
 
         <div className="mb-6 grid grid-cols-3 gap-2 rounded-md bg-secondary p-1.5">
@@ -268,6 +268,23 @@ function Dashboard() {
             <div className="space-y-2"><Label htmlFor="notes">Nota <span className="font-normal text-muted-foreground">(opcional)</span></Label><Textarea id="notes" name="notes" defaultValue={editing?.notes ?? ""} placeholder="Contexto o recordatorio" maxLength={500} /></div>
             <Button type="submit" size="lg" className="w-full">{editing ? "Guardar cambios" : "Añadir a la hucha"}</Button>
           </form>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={studentsOpen} onOpenChange={setStudentsOpen}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+          <DialogHeader><DialogTitle className="font-display text-2xl">Alumnos de {activeClass}</DialogTitle><DialogDescription>Añade su correo para que reciban cada viernes a las 7:00 un recordatorio de lo que deben.</DialogDescription></DialogHeader>
+          {students.filter((s) => s.class_name === activeClass).length === 0 ? (
+            <p className="py-6 text-center text-sm text-muted-foreground">Los alumnos aparecerán aquí al ponerles su primera multa.</p>
+          ) : (
+            <div className="space-y-3">
+              {students.filter((s) => s.class_name === activeClass).map((student) => (
+                <form key={student.id} className="space-y-1.5" onSubmit={(e) => { e.preventDefault(); void saveStudentEmail(student, String(new FormData(e.currentTarget).get("email") ?? "")); }}>
+                  <Label htmlFor={`email-${student.id}`}>{student.full_name}</Label>
+                  <div className="flex gap-2"><Input id={`email-${student.id}`} name="email" type="email" defaultValue={student.email ?? ""} placeholder="correo@ejemplo.com" maxLength={255} /><Button type="submit" variant="secondary">Guardar</Button></div>
+                </form>
+              ))}
+            </div>
+          )}
         </DialogContent>
       </Dialog>
       <Dialog open={profileOpen} onOpenChange={setProfileOpen}>
