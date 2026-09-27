@@ -206,7 +206,7 @@ function Dashboard() {
       <header className="border-b border-border bg-card">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
           <div className="flex items-center gap-3">
-            <div className="flex size-10 items-center justify-center rounded-md bg-primary text-primary-foreground"><BookOpen /></div>
+            <img src={logoAsset.url} alt="Logo de La Hucha de Lengua" className="size-10 rounded-md object-contain" />
             <div><p className="font-display text-lg font-bold leading-tight">La Hucha de Lengua</p><p className="text-xs text-muted-foreground">CENTRO CULTURAL VALLISOLETANO · 4.º ESO</p></div>
           </div>
           <div className="flex items-center gap-2">
