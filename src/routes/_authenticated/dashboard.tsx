@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { BookOpen, Check, ChevronRight, Coins, LogOut, Pencil, PiggyBank, Plus, Trash2, UserRound, WalletCards, X } from "lucide-react";
+import { Check, ChevronRight, Coins, LogOut, Pencil, PiggyBank, Plus, Trash2, UserRound, WalletCards, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import logoAsset from "@/assets/la-hucha-de-lengua.svg.asset.json";
 import type { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

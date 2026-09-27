@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { BookOpen, Check, ChevronRight, Coins, LockKeyhole, LogIn, Mail, Settings, WalletCards } from "lucide-react";
+import { Check, ChevronRight, Coins, LockKeyhole, LogIn, Mail, Settings, WalletCards } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import logoAsset from "@/assets/la-hucha-de-lengua.svg.asset.json";
 import { createTeacherAccount } from "@/lib/teacher-account.functions";
 import type { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
