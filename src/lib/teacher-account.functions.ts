@@ -8,18 +8,34 @@ const inputSchema = z.object({
   inviteCode: z.string().min(1),
 });
 
+const delegates = [
+  { className: "4ºA", env: "DELEGATE_CODE_4A", email: "a.kdutra@maristasccv.es" },
+  { className: "4ºB", env: "DELEGATE_CODE_4B", email: "a.smartin@maristasccv.es" },
+  { className: "4ºC", env: "DELEGATE_CODE_4C", email: "a.serjove@maristasccv.es" },
+];
+
 export const createTeacherAccount = createServerFn({ method: "POST" })
   .inputValidator((data) => inputSchema.parse(data))
   .handler(async ({ data }) => {
-    const expectedCode = process.env["TEACHER_INVITE_CODE"];
-    if (!expectedCode || data.inviteCode !== expectedCode) {
-      throw new Error("El código de invitación no es correcto.");
+    const code = data.inviteCode.trim();
+    const email = data.email.trim().toLowerCase();
+    let role: { role: "teacher" | "delegate"; class_name: string | null } | null = null;
+
+    const teacherCode = process.env["TEACHER_INVITE_CODE"];
+    if (teacherCode && code === teacherCode) role = { role: "teacher", class_name: null };
+    for (const d of delegates) {
+      const expected = process.env[d.env];
+      if (expected && code === expected) {
+        if (email !== d.email) throw new Error("Este código no corresponde a ese correo.");
+        role = { role: "delegate", class_name: d.className };
+      }
     }
+    if (!role) throw new Error("El código de invitación no es correcto.");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: created, error: createError } = await supabaseAdmin.auth.admin.createUser({
-      email: data.email,
+      email,
       password: data.password,
       email_confirm: true,
     });
@@ -31,10 +47,11 @@ export const createTeacherAccount = createServerFn({ method: "POST" })
       );
     }
 
-    const { error: profileError } = await supabaseAdmin
-      .from("profiles")
-      .upsert({ id: created.user.id, display_name: data.displayName });
-    if (profileError) {
+    const [{ error: profileError }, { error: roleError }] = await Promise.all([
+      supabaseAdmin.from("profiles").upsert({ id: created.user.id, display_name: data.displayName }),
+      supabaseAdmin.from("user_roles").insert({ user_id: created.user.id, ...role }),
+    ]);
+    if (profileError || roleError) {
       throw new Error("La cuenta se creó, pero no se pudo guardar el perfil.");
     }
 

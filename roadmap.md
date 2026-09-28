@@ -10,3 +10,4 @@
 - [x] Validar compilación, seguridad y presentación adaptable.
 - [x] Añadir «Crear cuenta» con código de invitación (TEACHER_INVITE_CODE) en la ventana de acceso.
 - [x] Celebrar cada nueva multa con una hucha animada, monedas y sonido.- [x] Fichas de alumno al poner multa, edición de correo y recordatorio semanal (viernes 7:00) con Resend.
+- [x] Desplegable de alumnos, resumen semanal al profesor y delegados por clase con códigos.
