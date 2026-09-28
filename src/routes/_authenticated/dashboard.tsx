@@ -232,7 +232,7 @@ function Dashboard() {
         </div>
 
         <div className="mb-6 grid grid-cols-3 gap-2 rounded-md bg-secondary p-1.5">
-          {classes.map((className) => <Button key={className} variant={activeClass === className ? "default" : "ghost"} className="h-11" onClick={() => setActiveClass(className)}>{className}</Button>)}
+          {allowedClasses.map((className) => <Button key={className} variant={activeClass === className ? "default" : "ghost"} className="h-11" onClick={() => setActiveClass(className)}>{className}</Button>)}
         </div>
 
         <section className="mb-8 grid gap-3 sm:grid-cols-3">
@@ -270,7 +270,7 @@ function Dashboard() {
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md">
           <DialogHeader><DialogTitle className="font-display text-2xl">{editing ? "Editar multa" : `Nueva multa · ${activeClass}`}</DialogTitle><DialogDescription>Registra entre 0,10 € y 0,50 €.</DialogDescription></DialogHeader>
           <form className="space-y-4" onSubmit={saveFine}>
-            <div className="space-y-2"><Label htmlFor="student_name">Alumno</Label><Input id="student_name" name="student_name" defaultValue={editing?.student_name} placeholder="Nombre y apellidos" required maxLength={100} /></div>
+            <div className="space-y-2"><Label htmlFor="student_name">Alumno</Label><Input id="student_name" name="student_name" list="registered-students" autoComplete="off" defaultValue={editing?.student_name} placeholder="Elige un alumno o escribe uno nuevo" required maxLength={100} /><datalist id="registered-students">{students.filter((s) => s.class_name === activeClass).map((s) => <option key={s.id} value={s.full_name} />)}</datalist><p className="text-xs text-muted-foreground">Aparecen los alumnos ya registrados; si es nuevo, escribe su nombre.</p></div>
             <fieldset><legend className="mb-2 text-sm font-medium">Importe</legend><div className="grid grid-cols-5 gap-2">{amounts.map((amount) => <label key={amount} className="amount-choice"><input className="peer sr-only" type="radio" name="amount_cents" value={amount} defaultChecked={(editing?.amount_cents ?? 10) === amount} /><span className="flex h-10 items-center justify-center rounded-md border border-input text-sm font-semibold peer-checked:border-primary peer-checked:bg-primary peer-checked:text-primary-foreground">{amount}¢</span></label>)}</div></fieldset>
             <div className="space-y-2"><Label htmlFor="occurred_on">Fecha</Label><Input id="occurred_on" name="occurred_on" type="date" defaultValue={editing?.occurred_on ?? new Date().toISOString().slice(0, 10)} required /></div>
             <label className="flex items-center gap-3 rounded-md border border-border p-3"><input type="checkbox" name="is_paid" defaultChecked={editing?.is_paid} className="size-4 accent-primary" /><span className="text-sm font-medium">Ya está pagada</span></label>
