@@ -111,7 +111,7 @@ function Dashboard() {
       ? classes
       : classes.filter((c) => roles.some((r) => r.role === "delegate" && r.class_name === c));
     setAllowedClasses(allowed);
-    if (allowed.length && !allowed.includes(activeClass)) setActiveClass(allowed[0]);
+    if (allowed.length && !allowed.includes(activeClass)) setActiveClass(allowed[0]!);
     if (profile?.display_name) setProfileName(profile.display_name);
     else await supabase.from("profiles").upsert({ id: user.id, display_name: "Profesor" });
     setLoading(false);
