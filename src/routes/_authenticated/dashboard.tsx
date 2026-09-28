@@ -46,6 +46,7 @@ function Dashboard() {
   const [celebrating, setCelebrating] = useState(false);
   const [students, setStudents] = useState<Student[]>([]);
   const [studentsOpen, setStudentsOpen] = useState(false);
+  const [allowedClasses, setAllowedClasses] = useState<ClassName[]>([]);
 
   async function saveStudentEmail(student: Student, email: string) {
     const value = email.trim() || null;
@@ -96,14 +97,21 @@ function Dashboard() {
   }
 
   async function loadData() {
-    const [{ data: fineRows, error }, { data: profile }, { data: studentRows }] = await Promise.all([
+    const [{ data: fineRows, error }, { data: profile }, { data: studentRows }, { data: roleRows }] = await Promise.all([
       supabase.from("fines").select("*").order("occurred_on", { ascending: false }).order("created_at", { ascending: false }),
       supabase.from("profiles").select("display_name").eq("id", user.id).maybeSingle(),
       supabase.from("students").select("*").order("full_name"),
+      supabase.from("user_roles").select("role, class_name").eq("user_id", user.id),
     ]);
     if (error) toast.error("No se pudieron cargar los registros");
     setFines(fineRows ?? []);
     setStudents(studentRows ?? []);
+    const roles = roleRows ?? [];
+    const allowed = roles.some((r) => r.role === "teacher")
+      ? classes
+      : classes.filter((c) => roles.some((r) => r.role === "delegate" && r.class_name === c));
+    setAllowedClasses(allowed);
+    if (allowed.length && !allowed.includes(activeClass)) setActiveClass(allowed[0]);
     if (profile?.display_name) setProfileName(profile.display_name);
     else await supabase.from("profiles").upsert({ id: user.id, display_name: "Profesor" });
     setLoading(false);
