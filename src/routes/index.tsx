@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Check, ChevronRight, Coins, LockKeyhole, LogIn, Mail, Settings, WalletCards } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import logoAsset from "@/assets/la-hucha-de-lengua.svg.asset.json";
+const logoUrl = "/la-hucha-de-lengua.svg";
 import { createTeacherAccount } from "@/lib/teacher-account.functions";
 import type { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
