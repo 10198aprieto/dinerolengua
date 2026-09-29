@@ -304,7 +304,7 @@ function Dashboard() {
               {students.filter((s) => s.class_name === activeClass).map((student) => (
                 <form key={student.id} className="space-y-1.5" onSubmit={(e) => { e.preventDefault(); void saveStudentEmail(student, String(new FormData(e.currentTarget).get("email") ?? "")); }}>
                   <Label htmlFor={`email-${student.id}`}>{student.full_name}</Label>
-                  <div className="flex gap-2"><Input id={`email-${student.id}`} name="email" type="email" defaultValue={student.email ?? ""} placeholder="correo@ejemplo.com" maxLength={255} /><Button type="submit" variant="secondary">Guardar</Button></div>
+                  <div className="flex gap-2"><Input id={`email-${student.id}`} name="email" type="email" defaultValue={student.email ?? ""} placeholder="correo@ejemplo.com" maxLength={255} /><Button type="submit" variant="secondary">Guardar</Button><Button type="button" variant="outline" size="icon" onClick={() => void sendReminder(student)} aria-label={`Enviar recordatorio a ${student.full_name}`} title="Enviar recordatorio" disabled={!student.email}><Mail /></Button></div>
                 </form>
               ))}
             </div>
