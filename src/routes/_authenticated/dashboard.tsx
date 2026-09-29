@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Check, ChevronRight, Coins, LogOut, Pencil, PiggyBank, Plus, Trash2, UserRound, WalletCards, X } from "lucide-react";
+import { Check, ChevronRight, Coins, LogOut, Mail, Pencil, PiggyBank, Plus, Trash2, UserRound, WalletCards, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 const logoUrl = "/la-hucha-de-lengua.svg";
@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { sendStudentReminder } from "@/lib/student-reminder.functions";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -60,6 +61,18 @@ function Dashboard() {
     }
     setStudents((prev) => prev.map((s) => (s.id === student.id ? { ...s, email: value } : s)));
     toast.success(`Correo de ${student.full_name} guardado`);
+  }
+  async function sendReminder(student: Student) {
+    if (!student.email) {
+      toast.error("Este alumno no tiene correo guardado");
+      return;
+    }
+    try {
+      const result = await sendStudentReminder({ data: { studentId: student.id } });
+      toast.success(`Recordatorio enviado a ${student.full_name} (${money(result.owed)})`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "No se pudo enviar el recordatorio");
+    }
   }
   const celebrationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
