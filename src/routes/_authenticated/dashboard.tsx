@@ -329,3 +329,25 @@ function Dashboard() {
 function Summary({ icon, label, value, tone }: { icon: React.ReactNode; label: string; value: string; tone: "success" | "warning" | "primary" }) {
   return <div className="summary-card flex items-center gap-4 rounded-md border border-border bg-card p-4"><div className={`summary-icon summary-icon-${tone} flex size-11 shrink-0 items-center justify-center rounded-md`}>{icon}</div><div><p className="text-xs font-semibold uppercase text-muted-foreground">{label}</p><p className="font-display text-2xl font-bold">{value}</p></div></div>;
 }
+const NEW_STUDENT = "__new__";
+
+function StudentField({ names, initial }: { names: string[]; initial: string }) {
+  const known = names.some((n) => n === initial);
+  const [choice, setChoice] = useState(names.length === 0 ? NEW_STUDENT : known ? initial : initial ? NEW_STUDENT : "");
+  const [typed, setTyped] = useState(known ? "" : initial);
+  const isNew = choice === NEW_STUDENT;
+  return (
+    <div className="space-y-2">
+      <Label htmlFor="student_select">Alumno</Label>
+      {names.length > 0 && (
+        <select id="student_select" value={choice} onChange={(e) => setChoice(e.target.value)} className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <option value="" disabled>Elige un alumno ya registrado…</option>
+          {names.map((n) => <option key={n} value={n}>{n}</option>)}
+          <option value={NEW_STUDENT}>+ Alumno nuevo</option>
+        </select>
+      )}
+      {isNew && <Input id="student_name_new" value={typed} onChange={(e) => setTyped(e.target.value)} placeholder="Nombre y apellido del alumno nuevo" required maxLength={100} autoComplete="off" />}
+      <input type="hidden" name="student_name" value={isNew ? typed : choice} />
+    </div>
+  );
+}
