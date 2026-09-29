@@ -142,13 +142,16 @@ function Dashboard() {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     const studentName = String(form.get("student_name") ?? "").trim();
+    if (!studentName) { toast.error("Elige o escribe un alumno"); return; }
+    const amountCents = Math.round(Number(String(form.get("amount_euros") ?? "").replace(",", ".")) * 100);
+    if (!Number.isFinite(amountCents) || amountCents <= 0 || amountCents > 100000) { toast.error("Escribe un importe válido en euros (máx. 1000 €)"); return; }
     const studentId = await ensureStudent(studentName, activeClass);
     const payload = {
       teacher_id: user.id,
       class_name: activeClass,
       student_name: studentName,
       student_id: studentId,
-      amount_cents: Number(form.get("amount_cents")),
+      amount_cents: amountCents,
       occurred_on: String(form.get("occurred_on")),
       is_paid: form.get("is_paid") === "on",
       notes: String(form.get("notes") ?? "").trim() || null,
@@ -268,10 +271,10 @@ function Dashboard() {
 
       <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) setEditing(null); }}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md">
-          <DialogHeader><DialogTitle className="font-display text-2xl">{editing ? "Editar multa" : `Nueva multa · ${activeClass}`}</DialogTitle><DialogDescription>Registra entre 0,10 € y 0,50 €.</DialogDescription></DialogHeader>
+          <DialogHeader><DialogTitle className="font-display text-2xl">{editing ? "Editar multa" : `Nueva multa · ${activeClass}`}</DialogTitle><DialogDescription>Elige el alumno y escribe el importe en euros.</DialogDescription></DialogHeader>
           <form className="space-y-4" onSubmit={saveFine}>
-            <div className="space-y-2"><Label htmlFor="student_name">Alumno</Label><Input id="student_name" name="student_name" list="registered-students" autoComplete="off" defaultValue={editing?.student_name} placeholder="Elige un alumno o escribe uno nuevo" required maxLength={100} /><datalist id="registered-students">{students.filter((s) => s.class_name === activeClass).map((s) => <option key={s.id} value={s.full_name} />)}</datalist><p className="text-xs text-muted-foreground">Aparecen los alumnos ya registrados; si es nuevo, escribe su nombre.</p></div>
-            <fieldset><legend className="mb-2 text-sm font-medium">Importe</legend><div className="grid grid-cols-5 gap-2">{amounts.map((amount) => <label key={amount} className="amount-choice"><input className="peer sr-only" type="radio" name="amount_cents" value={amount} defaultChecked={(editing?.amount_cents ?? 10) === amount} /><span className="flex h-10 items-center justify-center rounded-md border border-input text-sm font-semibold peer-checked:border-primary peer-checked:bg-primary peer-checked:text-primary-foreground">{amount}¢</span></label>)}</div></fieldset>
+            <StudentField key={editing?.id ?? "new"} names={students.filter((s) => s.class_name === activeClass).map((s) => s.full_name)} initial={editing?.student_name ?? ""} />
+            <div className="space-y-2"><Label htmlFor="amount_euros">Importe (€)</Label><Input id="amount_euros" name="amount_euros" type="text" inputMode="decimal" autoComplete="off" pattern="^\d{1,4}([.,]\d{1,2})?$" defaultValue={editing ? (editing.amount_cents / 100).toFixed(2).replace(".", ",") : ""} placeholder="Ej.: 0,20" required /><p className="text-xs text-muted-foreground">Usa coma o punto para los céntimos.</p></div>
             <div className="space-y-2"><Label htmlFor="occurred_on">Fecha</Label><Input id="occurred_on" name="occurred_on" type="date" defaultValue={editing?.occurred_on ?? new Date().toISOString().slice(0, 10)} required /></div>
             <label className="flex items-center gap-3 rounded-md border border-border p-3"><input type="checkbox" name="is_paid" defaultChecked={editing?.is_paid} className="size-4 accent-primary" /><span className="text-sm font-medium">Ya está pagada</span></label>
             <div className="space-y-2"><Label htmlFor="notes">Nota <span className="font-normal text-muted-foreground">(opcional)</span></Label><Textarea id="notes" name="notes" defaultValue={editing?.notes ?? ""} placeholder="Contexto o recordatorio" maxLength={500} /></div>
