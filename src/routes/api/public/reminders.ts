@@ -5,6 +5,19 @@ const money = (cents: number) => `${(cents / 100).toFixed(2).replace(".", ",")} 
 const escapeHtml = (s: string) =>
   s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 
+// Festivos (nacionales, Castilla y León y Valladolid) y vacaciones escolares aproximadas.
+const HOLIDAYS = new Set([
+  "2026-10-12", "2026-11-02", "2026-12-07", "2026-12-08",
+  ...range("2026-12-21", "2027-01-07"),
+  "2027-03-19", ...range("2027-03-22", "2027-03-29"), "2027-04-23", "2027-05-13", "2027-09-08",
+  "2027-10-12", "2027-11-01", "2027-12-06", "2027-12-08",
+]);
+function range(from: string, to: string) {
+  const out: string[] = [];
+  for (let d = new Date(`${from}T12:00:00Z`); d <= new Date(`${to}T12:00:00Z`); d.setUTCDate(d.getUTCDate() + 1)) out.push(d.toISOString().slice(0, 10));
+  return out;
+}
+
 export const Route = createFileRoute("/api/public/reminders")({
   server: {
     handlers: {
@@ -18,14 +31,16 @@ export const Route = createFileRoute("/api/public/reminders")({
           return new Response("Unauthorized", { status: 401 });
         }
 
-        // Cron runs at 05 and 06 UTC; only send when it is 07:00 in Madrid.
+        // Cron runs Mon-Fri at 05 and 06 UTC; only send at 07:00 Madrid on school days.
         const madrid = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Madrid", hour: "2-digit", hour12: false, weekday: "short", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date());
         const part = (t: string) => madrid.find((p) => p.type === t)?.value;
         const force = new URL(request.url).searchParams.get("force") === "1";
-        if (!force && (part("hour") !== "07" || part("weekday") !== "Fri")) {
+        const dateKey = `${part("year")}-${part("month")}-${part("day")}`;
+        const weekday = part("weekday");
+        if (!force && (part("hour") !== "07" || weekday === "Sat" || weekday === "Sun" || HOLIDAYS.has(dateKey))) {
           return Response.json({ skipped: true });
         }
-        const dateKey = `${part("year")}-${part("month")}-${part("day")}`;
+        const isFriday = weekday === "Fri" || force;
 
         const apiKey = process.env["RESEND_API_KEY"];
         if (!apiKey) return new Response("RESEND_API_KEY missing", { status: 500 });
@@ -63,7 +78,8 @@ export const Route = createFileRoute("/api/public/reminders")({
             failures.push(`${s.id}: ${res.status}`);
           }
         }
-        // Weekly summary for the teacher: who owes money in each class.
+        if (!isFriday) return Response.json({ sent, failures, teacherSummary: false });
+        // Weekly summary for the teacher (Fridays): who owes money in each class.
         const { data: allStudents } = await supabaseAdmin
           .from("students")
           .select("full_name, class_name, fines(amount_cents, is_paid)")

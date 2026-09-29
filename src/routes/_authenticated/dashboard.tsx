@@ -29,7 +29,6 @@ type Fine = Tables<"fines">;
 type Student = Tables<"students">;
 type ClassName = "4ºA" | "4ºB" | "4ºC";
 const classes: ClassName[] = ["4ºA", "4ºB", "4ºC"];
-const amounts = [10, 20, 30, 40, 50];
 const money = (cents: number) => `${(cents / 100).toFixed(2).replace(".", ",")} €`;
 
 function Dashboard() {
