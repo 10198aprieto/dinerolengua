@@ -1,0 +1,1 @@
+SELECT cron.alter_job(jobid, schedule := '0 5,6 * * 5') FROM cron.job WHERE jobname = 'friday-fine-reminders';
