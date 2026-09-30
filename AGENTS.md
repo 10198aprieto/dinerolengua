@@ -10,3 +10,4 @@
 <!-- LOVABLE:END -->
 
 - Supabase is the source of truth for authentication and fine records; fine reads are public while all writes remain owner-authenticated, and Firebase is used only for browser analytics.
+- Self-hosting on Vercel: `vite.config.ts` pins nitro `preset: "vercel"`; Lovable builds override it with `LOVABLE_NITRO_PRESET`, so previews stay on Cloudflare. `.env` is gitignored (holds only public Supabase values) — hosts get env vars from their dashboard; see GUIA-VERCEL.md.
