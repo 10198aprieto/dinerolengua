@@ -6,11 +6,14 @@ const escapeHtml = (s: string) =>
   s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 
 // Festivos (nacionales, Castilla y León y Valladolid) y vacaciones escolares aproximadas.
+// Calendario escolar oficial Castilla y León 2026/2027 + fiestas locales de Valladolid.
 const HOLIDAYS = new Set([
-  "2026-10-12", "2026-11-02", "2026-12-07", "2026-12-08",
-  ...range("2026-12-21", "2027-01-07"),
-  "2027-03-19", ...range("2027-03-22", "2027-03-29"), "2027-04-23", "2027-05-13", "2027-09-08",
-  "2027-10-12", "2027-11-01", "2027-12-06", "2027-12-08",
+  "2026-10-12", "2026-10-30", "2026-11-02", "2026-12-07", "2026-12-08",
+  ...range("2026-12-23", "2027-01-10"),
+  "2027-02-08", "2027-02-09",
+  ...range("2027-03-20", "2027-03-30"),
+  "2027-04-23", "2027-05-01", "2027-05-13",
+  ...range("2027-06-24", "2027-09-08"), // verano
 ]);
 function range(from: string, to: string) {
   const out: string[] = [];
