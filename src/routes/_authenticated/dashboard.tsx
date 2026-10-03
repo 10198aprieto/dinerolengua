@@ -28,8 +28,8 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 
 type Fine = Tables<"fines">;
 type Student = Tables<"students">;
-type ClassName = "4ºA" | "4ºB" | "4ºC";
-const classes: ClassName[] = ["4ºA", "4ºB", "4ºC"];
+type ClassName = "3ºA" | "4ºA" | "4ºB" | "4ºC";
+const classes: ClassName[] = ["3ºA", "4ºA", "4ºB", "4ºC"];
 const money = (cents: number) => `${(cents / 100).toFixed(2).replace(".", ",")} €`;
 
 function Dashboard() {
