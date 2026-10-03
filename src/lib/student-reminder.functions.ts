@@ -1,11 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { studentReminderEmail } from "@/lib/reminder-email";
 
 const money = (cents: number) => `${(cents / 100).toFixed(2).replace(".", ",")} €`;
-const escapeHtml = (s: string) =>
-  s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
-
 export const sendStudentReminder = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({ studentId: z.string().uuid() }).parse(data))
@@ -32,7 +30,6 @@ export const sendStudentReminder = createServerFn({ method: "POST" })
     const apiKey = process.env["RESEND_API_KEY"];
     if (!apiKey) throw new Error("RESEND_API_KEY no configurada");
 
-    const name = escapeHtml(student.full_name);
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
@@ -40,7 +37,7 @@ export const sendStudentReminder = createServerFn({ method: "POST" })
         from: "La Hucha de Lengua <recuerda@dinerolengua.es>",
         to: [student.email],
         subject: `Recordatorio: debes ${money(owed)} a la hucha de Lengua`,
-        html: `<div style="font-family:Arial,sans-serif;padding:24px;color:#1f2937"><h2 style="color:#15803d">La Hucha de Lengua</h2><p>Hola, ${name}:</p><p>Te recordamos que tienes pendiente <strong>${money(owed)}</strong> en la hucha de Lengua de ${escapeHtml(student.class_name)}.</p><p>¡Cada palabra cuenta!</p><p style="color:#6b7280;font-size:12px">Centro Cultural Vallisoletano · 4.º ESO</p></div>`,
+        html: studentReminderEmail(student.full_name, student.class_name, owed),
       }),
     });
     if (!res.ok) {
