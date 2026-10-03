@@ -34,13 +34,13 @@ export const Route = createFileRoute("/api/public/reminders")({
           return new Response("Unauthorized", { status: 401 });
         }
 
-        // Cron runs Fridays at 05 and 06 UTC; only send at 07:00 Madrid on school days.
+        // Cron runs Fridays and Sundays at 05 and 06 UTC; only send at 07:00 Madrid on school days.
         const madrid = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Madrid", hour: "2-digit", hour12: false, weekday: "short", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date());
         const part = (t: string) => madrid.find((p) => p.type === t)?.value;
         const force = new URL(request.url).searchParams.get("force") === "1";
         const dateKey = `${part("year")}-${part("month")}-${part("day")}`;
         const weekday = part("weekday");
-        if (!force && (part("hour") !== "07" || weekday !== "Fri" || HOLIDAYS.has(dateKey))) {
+        if (!force && (part("hour") !== "07" || (weekday !== "Fri" && weekday !== "Sun") || HOLIDAYS.has(dateKey))) {
           return Response.json({ skipped: true });
         }
 
@@ -80,12 +80,14 @@ export const Route = createFileRoute("/api/public/reminders")({
             failures.push(`${s.id}: ${res.status}`);
           }
         }
-        // Weekly summary for the teacher: who owes money in each class.
-        const { data: allStudents } = await supabaseAdmin
-          .from("students")
-          .select("full_name, class_name, fines(amount_cents, is_paid)")
-          .order("full_name");
-        const sections = ["4ºA", "4ºB", "4ºC"].map((cls) => {
+        // Weekly summary for the teacher (Fridays only): who owes money in each class.
+        let summaryOk = false;
+        if (force || weekday === "Fri") {
+          const { data: allStudents } = await supabaseAdmin
+            .from("students")
+            .select("full_name, class_name, fines(amount_cents, is_paid)")
+            .order("full_name");
+          const sections = ["3ºA", "4ºA", "4ºB", "4ºC"].map((cls) => {
           const rows = (allStudents ?? [])
             .filter((s) => s.class_name === cls)
             .map((s) => ({ name: s.full_name, owed: (s.fines ?? []).filter((f) => !f.is_paid).reduce((sum, f) => sum + f.amount_cents, 0) }))
