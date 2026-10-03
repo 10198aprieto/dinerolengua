@@ -9,6 +9,7 @@ const inputSchema = z.object({
 });
 
 const delegates = [
+  { className: "3ºA", env: "DELEGATE_CODE_3A", email: "a.aconde@maristasccv.es" },
   { className: "4ºA", env: "DELEGATE_CODE_4A", email: "a.kdutra@maristasccv.es" },
   { className: "4ºB", env: "DELEGATE_CODE_4B", email: "a.smartin@maristasccv.es" },
   { className: "4ºC", env: "DELEGATE_CODE_4C", email: "a.serjove@maristasccv.es" },

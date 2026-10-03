@@ -28,8 +28,8 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 
 type Fine = Tables<"fines">;
 type Student = Tables<"students">;
-type ClassName = "4ºA" | "4ºB" | "4ºC";
-const classes: ClassName[] = ["4ºA", "4ºB", "4ºC"];
+type ClassName = "3ºA" | "4ºA" | "4ºB" | "4ºC";
+const classes: ClassName[] = ["3ºA", "4ºA", "4ºB", "4ºC"];
 const money = (cents: number) => `${(cents / 100).toFixed(2).replace(".", ",")} €`;
 
 function Dashboard() {
@@ -231,7 +231,7 @@ function Dashboard() {
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
           <div className="flex items-center gap-3">
             <img src={logoUrl} alt="Logo de La Hucha de Lengua" className="size-10 rounded-md object-contain" />
-            <div><p className="font-display text-lg font-bold leading-tight">La Hucha de Lengua</p><p className="text-xs text-muted-foreground">CENTRO CULTURAL VALLISOLETANO · 4.º ESO</p></div>
+            <div><p className="font-display text-lg font-bold leading-tight">La Hucha de Lengua</p><p className="text-xs text-muted-foreground">CENTRO CULTURAL VALLISOLETANO · 3.º y 4.º ESO</p></div>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="ghost" className="hidden sm:inline-flex" onClick={() => setProfileOpen(true)}><UserRound />{profileName}</Button>
