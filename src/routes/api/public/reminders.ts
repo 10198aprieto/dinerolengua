@@ -70,7 +70,7 @@ export const Route = createFileRoute("/api/public/reminders")({
               from: "La Hucha de Lengua <recuerda@dinerolengua.es>",
               to: [s.email],
               subject: `Recordatorio: debes ${money(owed)} a la hucha de Lengua`,
-              html: `<div style="font-family:Arial,sans-serif;padding:24px;color:#1f2937"><h2 style="color:#15803d">La Hucha de Lengua</h2><p>Hola, ${name}:</p><p>Te recordamos que tienes pendiente <strong>${money(owed)}</strong> en la hucha de Lengua de ${escapeHtml(s.class_name)}.</p><p>¡Cada palabra cuenta!</p><p style="color:#6b7280;font-size:12px">Centro Cultural Vallisoletano · 4.º ESO</p></div>`,
+              html: `<div style="font-family:Arial,sans-serif;padding:24px;color:#1f2937"><h2 style="color:#15803d">La Hucha de Lengua</h2><p>Hola, ${name}:</p><p>Te recordamos que tienes pendiente <strong>${money(owed)}</strong> en la hucha de Lengua de ${escapeHtml(s.class_name)}.</p><p>¡Cada palabra cuenta!</p><p style="color:#6b7280;font-size:12px">Centro Cultural Vallisoletano · 3.º y 4.º ESO</p></div>`,
             }),
           });
           if (res.ok) sent++;
