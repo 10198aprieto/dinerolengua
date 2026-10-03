@@ -12,10 +12,10 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 
 export const Route = createFileRoute("/")({
   head: () => ({ meta: [
-    { title: "La Hucha de Lengua | Contador de 4.º ESO" },
+    { title: "La Hucha de Lengua | Contador de 3.º y 4.º ESO" },
     { name: "description", content: "Consulta pública del dinero recaudado y pendiente en las clases de Lengua de 4.º A, 4.º B y 4.º C." },
     { property: "og:title", content: "La Hucha de Lengua" },
-    { property: "og:description", content: "Contador público de las multas de Lengua de 4.º ESO." },
+    { property: "og:description", content: "Contador público de las multas de Lengua de 3.º y 4.º ESO." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary" },
   ] }),
@@ -104,7 +104,7 @@ function Index() {
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
           <div className="flex items-center gap-3">
             <img src={logoUrl} alt="Logo de La Hucha de Lengua" className="size-10 rounded-md object-contain" />
-            <div><p className="font-display text-lg font-bold leading-tight">La Hucha de Lengua</p><p className="text-xs text-muted-foreground">CENTRO CULTURAL VALLISOLETANO · 4.º ESO</p></div>
+            <div><p className="font-display text-lg font-bold leading-tight">La Hucha de Lengua</p><p className="text-xs text-muted-foreground">CENTRO CULTURAL VALLISOLETANO · 3.º y 4.º ESO</p></div>
           </div>
           {signedIn
             ? <Button onClick={() => navigate({ to: "/dashboard" })}><Settings /> <span className="hidden sm:inline">Gestionar</span></Button>
