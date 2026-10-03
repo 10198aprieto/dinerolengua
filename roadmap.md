@@ -13,5 +13,6 @@
 - [x] Arreglar desplegable, importe libre en euros y recordatorio diario (L-V, sin festivos).
 - [x] Desplegable de alumnos, resumen semanal al profesor y delegados por clase con códigos.
 - [x] Botón manual de recordatorio por correo junto a cada alumno.
+- [x] Adaptar los correos de alumnos y profesores a las plantillas facilitadas.
 - [x] Preparar el despliegue en Vercel (compilación para Vercel verificada y guía GUIA-VERCEL.md).
 - [ ] Apuntar los recordatorios automáticos a la URL definitiva en Vercel (pendiente de que el usuario sincronice con GitHub, despliegue en Vercel y comparta la URL o conecte dinerolengua.es).

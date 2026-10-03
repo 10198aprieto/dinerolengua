@@ -1,10 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { timingSafeEqual } from "crypto";
+import { studentReminderEmail, teacherSummaryEmail } from "@/lib/reminder-email";
 
 const money = (cents: number) => `${(cents / 100).toFixed(2).replace(".", ",")} €`;
-const escapeHtml = (s: string) =>
-  s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
-
 // Festivos (nacionales, Castilla y León y Valladolid) y vacaciones escolares aproximadas.
 // Calendario escolar oficial Castilla y León 2026/2027 + fiestas locales de Valladolid.
 const HOLIDAYS = new Set([
@@ -58,7 +56,6 @@ export const Route = createFileRoute("/api/public/reminders")({
         for (const s of students ?? []) {
           const owed = (s.fines ?? []).filter((f) => !f.is_paid).reduce((sum, f) => sum + f.amount_cents, 0);
           if (!s.email || owed <= 0) continue;
-          const name = escapeHtml(s.full_name);
           const res = await fetch("https://api.resend.com/emails", {
             method: "POST",
             headers: {
@@ -70,7 +67,7 @@ export const Route = createFileRoute("/api/public/reminders")({
               from: "La Hucha de Lengua <recuerda@dinerolengua.es>",
               to: [s.email],
               subject: `Recordatorio: debes ${money(owed)} a la hucha de Lengua`,
-              html: `<div style="font-family:Arial,sans-serif;padding:24px;color:#1f2937"><h2 style="color:#15803d">La Hucha de Lengua</h2><p>Hola, ${name}:</p><p>Te recordamos que tienes pendiente <strong>${money(owed)}</strong> en la hucha de Lengua de ${escapeHtml(s.class_name)}.</p><p>¡Cada palabra cuenta!</p><p style="color:#6b7280;font-size:12px">Centro Cultural Vallisoletano · 3.º y 4.º ESO</p></div>`,
+              html: studentReminderEmail(s.full_name, s.class_name, owed),
             }),
           });
           if (res.ok) sent++;
@@ -87,17 +84,16 @@ export const Route = createFileRoute("/api/public/reminders")({
             .from("students")
             .select("full_name, class_name, fines(amount_cents, is_paid)")
             .order("full_name");
-          const sections = ["3ºA", "4ºA", "4ºB", "4ºC"].map((cls) => {
-          const rows = (allStudents ?? [])
-            .filter((s) => s.class_name === cls)
-            .map((s) => ({ name: s.full_name, owed: (s.fines ?? []).filter((f) => !f.is_paid).reduce((sum, f) => sum + f.amount_cents, 0) }))
-            .filter((r) => r.owed > 0);
-          const total = rows.reduce((sum, r) => sum + r.owed, 0);
-          const list = rows.length
-            ? `<ul>${rows.map((r) => `<li>${escapeHtml(r.name)}: <strong>${money(r.owed)}</strong></li>`).join("")}</ul><p>Total pendiente: <strong>${money(total)}</strong></p>`
-            : `<p>Nadie debe dinero. 🎉</p>`;
-          return `<h3 style="color:#15803d">${cls}</h3>${list}`;
-        }).join("");
+          const summaries = ["3ºA", "4ºA", "4ºB", "4ºC"].map((className) => ({
+            className,
+            students: (allStudents ?? [])
+              .filter((student) => student.class_name === className)
+              .map((student) => ({
+                name: student.full_name,
+                owed: (student.fines ?? []).filter((fine) => !fine.is_paid).reduce((sum, fine) => sum + fine.amount_cents, 0),
+              }))
+              .filter((student) => student.owed > 0),
+          }));
           const summaryRes = await fetch("https://api.resend.com/emails", {
             method: "POST",
             headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json", "Idempotency-Key": `teacher-summary-${dateKey}` },
@@ -105,7 +101,7 @@ export const Route = createFileRoute("/api/public/reminders")({
               from: "La Hucha de Lengua <recuerda@dinerolengua.es>",
               to: ["kevin@maristasccv.es"],
               subject: `Resumen semanal de la hucha de Lengua (${dateKey})`,
-              html: `<div style="font-family:Arial,sans-serif;padding:24px;color:#1f2937"><h2 style="color:#15803d">La Hucha de Lengua · Resumen semanal</h2>${sections}<p style="color:#6b7280;font-size:12px">Centro Cultural Vallisoletano · 3.º y 4.º ESO</p></div>`,
+              html: teacherSummaryEmail("Kevin", summaries),
             }),
           });
           summaryOk = summaryRes.ok;
