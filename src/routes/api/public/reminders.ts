@@ -98,21 +98,23 @@ export const Route = createFileRoute("/api/public/reminders")({
             : `<p>Nadie debe dinero. 🎉</p>`;
           return `<h3 style="color:#15803d">${cls}</h3>${list}`;
         }).join("");
-        const summaryRes = await fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json", "Idempotency-Key": `teacher-summary-${dateKey}` },
-          body: JSON.stringify({
-            from: "La Hucha de Lengua <recuerda@dinerolengua.es>",
-            to: ["kevin@maristasccv.es"],
-            subject: `Resumen semanal de la hucha de Lengua (${dateKey})`,
-            html: `<div style="font-family:Arial,sans-serif;padding:24px;color:#1f2937"><h2 style="color:#15803d">La Hucha de Lengua · Resumen semanal</h2>${sections}<p style="color:#6b7280;font-size:12px">Centro Cultural Vallisoletano · 4.º ESO</p></div>`,
-          }),
-        });
-        if (!summaryRes.ok) {
-          console.error(`Teacher summary failed [${summaryRes.status}]: ${await summaryRes.text()}`);
-          failures.push(`teacher-summary: ${summaryRes.status}`);
+          const summaryRes = await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json", "Idempotency-Key": `teacher-summary-${dateKey}` },
+            body: JSON.stringify({
+              from: "La Hucha de Lengua <recuerda@dinerolengua.es>",
+              to: ["kevin@maristasccv.es"],
+              subject: `Resumen semanal de la hucha de Lengua (${dateKey})`,
+              html: `<div style="font-family:Arial,sans-serif;padding:24px;color:#1f2937"><h2 style="color:#15803d">La Hucha de Lengua · Resumen semanal</h2>${sections}<p style="color:#6b7280;font-size:12px">Centro Cultural Vallisoletano · 3.º y 4.º ESO</p></div>`,
+            }),
+          });
+          summaryOk = summaryRes.ok;
+          if (!summaryRes.ok) {
+            console.error(`Teacher summary failed [${summaryRes.status}]: ${await summaryRes.text()}`);
+            failures.push(`teacher-summary: ${summaryRes.status}`);
+          }
         }
-        return Response.json({ sent, failures, teacherSummary: summaryRes.ok });
+        return Response.json({ sent, failures, teacherSummary: summaryOk });
       },
     },
   },
