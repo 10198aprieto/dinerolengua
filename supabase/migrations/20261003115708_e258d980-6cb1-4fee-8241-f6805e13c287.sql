@@ -1,0 +1,1 @@
+SELECT cron.schedule('friday-fine-reminders', '0 5,6 * * 5,0', $$SELECT net.http_post(url := 'https://dinerolengua.lovable.app/api/public/reminders', headers := jsonb_build_object('Content-Type', 'application/json', 'x-reminder-token', public.get_reminder_token()), body := '{}'::jsonb)$$);
