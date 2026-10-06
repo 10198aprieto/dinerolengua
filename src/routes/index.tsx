@@ -38,6 +38,16 @@ function Index() {
   const [loginError, setLoginError] = useState("");
   const [signingIn, setSigningIn] = useState(false);
   const [mode, setMode] = useState<"login" | "signup">("login");
+  const [adOpen, setAdOpen] = useState(false);
+
+  useEffect(() => {
+    if (sessionStorage.getItem("arroyobus-ad-seen")) return;
+    const timer = setTimeout(() => {
+      setAdOpen(true);
+      sessionStorage.setItem("arroyobus-ad-seen", "1");
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     void supabase.from("fines").select("*").order("occurred_on", { ascending: false }).order("created_at", { ascending: false }).then(({ data }) => {
@@ -160,20 +170,41 @@ function Index() {
         </section>
       </div>
 
-      <footer className="mt-4 border-t border-border bg-card py-6">
+      <footer className="mt-4 border-t border-border bg-card py-8">
         <div className="mx-auto flex max-w-6xl justify-center px-4 sm:px-6">
           <a
             href="https://arroyobus.net"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-3 rounded-md px-4 py-2 transition-colors hover:bg-secondary/60"
+            className="group flex flex-col items-center gap-3 rounded-md border border-border bg-secondary/40 px-8 py-5 transition-colors hover:border-primary hover:bg-secondary/70"
             title="Visitar arroyobus.net"
           >
-            <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Patrocinado por</span>
-            <img src="/arroyobus.png" alt="ArroyoBUS" className="h-9 w-auto" />
+            <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Patrocinado por</span>
+            <img src="/arroyobus.png" alt="ArroyoBUS, transporte urbano de Arroyo de la Encomienda" className="h-12 w-auto transition-transform group-hover:scale-105" />
+            <span className="text-xs text-muted-foreground">Transporte urbano de Arroyo de la Encomienda · arroyobus.net</span>
           </a>
         </div>
       </footer>
+
+      <Dialog open={adOpen} onOpenChange={setAdOpen}>
+        <DialogContent className="overflow-hidden p-0 sm:max-w-md">
+          <DialogHeader className="sr-only">
+            <DialogTitle>Anuncio de ArroyoBUS</DialogTitle>
+            <DialogDescription>ArroyoBUS, transporte urbano de Arroyo de la Encomienda, patrocina La Hucha de Lengua.</DialogDescription>
+          </DialogHeader>
+          <a
+            href="https://arroyobus.net"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block bg-card p-8 transition-opacity hover:opacity-90"
+            onClick={() => setAdOpen(false)}
+            title="Visitar arroyobus.net"
+          >
+            <img src="/arroyobus.png" alt="ArroyoBUS, transporte urbano de Arroyo de la Encomienda" className="mx-auto w-full max-w-xs" />
+          </a>
+          <p className="bg-secondary/50 px-4 py-2 text-center text-[11px] uppercase tracking-wide text-muted-foreground">Contenido patrocinado · arroyobus.net</p>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={loginOpen} onOpenChange={(open) => { setLoginOpen(open); if (!open) { setMode("login"); setLoginError(""); } }}>
         <DialogContent className="sm:max-w-sm">
