@@ -141,7 +141,7 @@ function Index() {
 
         <section>
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <div><h2 className="font-display text-2xl font-bold">Historial de {activeClass}</h2><p className="text-sm text-muted-foreground">{classFines.length} {classFines.length === 1 ? "registro" : "registros"}</p></div>
+            <div><h2 className="font-display text-2xl font-bold">Historial de {activeClass}</h2><p className="text-sm text-muted-foreground">{visibleFines.length} {visibleFines.length === 1 ? "alumno" : "alumnos"}</p></div>
             <div className="flex gap-1 rounded-md border border-border bg-card p-1">
               {([['all', 'Todas'], ['pending', 'Pendientes'], ['paid', 'Pagadas']] as const).map(([value, label]) => <Button key={value} size="sm" variant={status === value ? "secondary" : "ghost"} onClick={() => setStatus(value)}>{label}</Button>)}
             </div>
