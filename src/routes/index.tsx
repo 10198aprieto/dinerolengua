@@ -52,7 +52,7 @@ function Index() {
   const visibleFines = useMemo(() => {
     const groups = new Map<string, { key: string; student_name: string; amount_cents: number; is_paid: boolean; occurred_on: string }>();
     for (const fine of filteredFines) {
-      const key = fine.student_id ?? fine.student_name.toLowerCase();
+      const key = `${fine.student_id ?? fine.student_name.toLowerCase()}|${fine.is_paid ? "paid" : "pending"}`;
       const group = groups.get(key);
       if (group) {
         group.amount_cents += fine.amount_cents;
@@ -150,10 +150,10 @@ function Index() {
             <div className="empty-state py-16 text-center"><Coins className="mx-auto mb-4 size-10 text-muted-foreground" /><h3 className="font-display text-xl font-bold">La hucha está vacía</h3><p className="mt-1 text-sm text-muted-foreground">No hay multas en esta vista.</p></div>
           ) : (
             <div className="space-y-2">{visibleFines.map((fine) => (
-              <article key={fine.id} className="record-row grid grid-cols-[1fr_auto] items-center gap-3 rounded-md border border-border bg-card px-4 py-3 sm:grid-cols-[1fr_120px_130px]">
-                <div className="min-w-0"><p className="truncate font-semibold">{fine.student_name}</p><p className="truncate text-xs text-muted-foreground">{new Date(`${fine.occurred_on}T12:00:00`).toLocaleDateString("es-ES", { day: "numeric", month: "short", year: "numeric" })}{fine.notes ? ` · ${fine.notes}` : ""}</p></div>
+              <article key={fine.key} className="record-row grid grid-cols-[1fr_auto] items-center gap-3 rounded-md border border-border bg-card px-4 py-3 sm:grid-cols-[1fr_120px_130px]">
+                <div className="min-w-0"><p className="truncate font-semibold">{fine.student_name}</p><p className="truncate text-xs text-muted-foreground">Última multa: {new Date(`${fine.occurred_on}T12:00:00`).toLocaleDateString("es-ES", { day: "numeric", month: "short", year: "numeric" })}</p></div>
                 <p className="font-display text-xl font-bold">{money(fine.amount_cents)}</p>
-                <div className={`inline-flex h-9 items-center gap-2 justify-self-start rounded-md border px-3 text-sm font-medium ${fine.is_paid ? "bg-secondary" : "bg-background"}`}>{fine.is_paid ? <Check className="size-4" /> : <ChevronRight className="size-4" />}{fine.is_paid ? "Pagada" : "Pendiente"}</div>
+                <div className={`inline-flex h-9 items-center gap-2 justify-self-start rounded-md border px-3 text-sm font-medium ${fine.is_paid ? "bg-secondary" : "bg-background"}`}>{fine.is_paid ? <Check className="size-4" /> : <ChevronRight className="size-4" />}{fine.is_paid ? "Pagado" : "Debe"}</div>
               </article>
             ))}</div>
           )}
