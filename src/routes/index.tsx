@@ -48,7 +48,21 @@ function Index() {
   }, []);
 
   const classFines = fines.filter((fine) => fine.class_name === activeClass);
-  const visibleFines = classFines.filter((fine) => status === "all" || (status === "paid" ? fine.is_paid : !fine.is_paid));
+  const filteredFines = classFines.filter((fine) => status === "all" || (status === "paid" ? fine.is_paid : !fine.is_paid));
+  const visibleFines = useMemo(() => {
+    const groups = new Map<string, { key: string; student_name: string; amount_cents: number; is_paid: boolean; occurred_on: string }>();
+    for (const fine of filteredFines) {
+      const key = fine.student_id ?? fine.student_name.toLowerCase();
+      const group = groups.get(key);
+      if (group) {
+        group.amount_cents += fine.amount_cents;
+        if (fine.occurred_on > group.occurred_on) group.occurred_on = fine.occurred_on;
+      } else {
+        groups.set(key, { key, student_name: fine.student_name, amount_cents: fine.amount_cents, is_paid: fine.is_paid, occurred_on: fine.occurred_on });
+      }
+    }
+    return [...groups.values()].sort((a, b) => b.occurred_on.localeCompare(a.occurred_on));
+  }, [filteredFines]);
   const totals = useMemo(() => {
     const paid = classFines.filter((fine) => fine.is_paid).reduce((sum, fine) => sum + fine.amount_cents, 0);
     const pending = classFines.filter((fine) => !fine.is_paid).reduce((sum, fine) => sum + fine.amount_cents, 0);
