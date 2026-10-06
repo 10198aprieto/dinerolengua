@@ -160,6 +160,21 @@ function Index() {
         </section>
       </div>
 
+      <footer className="mt-4 border-t border-border bg-card py-6">
+        <div className="mx-auto flex max-w-6xl justify-center px-4 sm:px-6">
+          <a
+            href="https://arroyobus.net"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 rounded-md px-4 py-2 transition-colors hover:bg-secondary/60"
+            title="Visitar arroyobus.net"
+          >
+            <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Patrocinado por</span>
+            <img src="/arroyobus.png" alt="ArroyoBUS" className="h-9 w-auto" />
+          </a>
+        </div>
+      </footer>
+
       <Dialog open={loginOpen} onOpenChange={(open) => { setLoginOpen(open); if (!open) { setMode("login"); setLoginError(""); } }}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
