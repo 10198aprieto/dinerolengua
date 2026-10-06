@@ -38,6 +38,16 @@ function Index() {
   const [loginError, setLoginError] = useState("");
   const [signingIn, setSigningIn] = useState(false);
   const [mode, setMode] = useState<"login" | "signup">("login");
+  const [adOpen, setAdOpen] = useState(false);
+
+  useEffect(() => {
+    if (sessionStorage.getItem("arroyobus-ad-seen")) return;
+    const timer = setTimeout(() => {
+      setAdOpen(true);
+      sessionStorage.setItem("arroyobus-ad-seen", "1");
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     void supabase.from("fines").select("*").order("occurred_on", { ascending: false }).order("created_at", { ascending: false }).then(({ data }) => {
