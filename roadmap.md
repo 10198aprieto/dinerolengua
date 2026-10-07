@@ -16,4 +16,5 @@
 - [x] Adaptar los correos de alumnos y profesores a las plantillas facilitadas.
 - [x] Preparar el despliegue en Vercel (compilación para Vercel verificada y guía GUIA-VERCEL.md).
 - [ ] Apuntar los recordatorios automáticos a la URL definitiva en Vercel (pendiente de que el usuario sincronice con GitHub, despliegue en Vercel y comparta la URL o conecte dinerolengua.es).
-- [x] Mejorar el patrocinio de ArroyoBUS y añadir ventana emergente tipo anuncio (solo la imagen del logo, una vez por sesión).
+- [x] Mejorar el patrocinio de ArroyoBUS en el pie de la portada.
+- [x] Quitar la ventana emergente tipo anuncio (el usuario ya no la quiere).
