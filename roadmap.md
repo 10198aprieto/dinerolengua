@@ -18,3 +18,4 @@
 - [ ] Apuntar los recordatorios automáticos a la URL definitiva en Vercel (pendiente de que el usuario sincronice con GitHub, despliegue en Vercel y comparta la URL o conecte dinerolengua.es).
 - [x] Mejorar el patrocinio de ArroyoBUS en el pie de la portada.
 - [x] Quitar la ventana emergente tipo anuncio (el usuario ya no la quiere).
+- [x] Quitar todo el patrocinio de ArroyoBUS (pie de página y logo).
