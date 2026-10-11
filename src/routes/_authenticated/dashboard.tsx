@@ -153,11 +153,15 @@ function Dashboard() {
   }
 
   async function togglePaid(fine: Fine) {
-    const { error } = await supabase.from("fines").update({ is_paid: !fine.is_paid }).eq("id", fine.id);
+    const paying = !fine.is_paid;
+    if (paying) celebration.current?.prepare();
+    const { error } = await supabase.from("fines").update({ is_paid: paying }).eq("id", fine.id);
     if (error) {
       toast.error("No se pudo cambiar el estado");
       return;
     }
+    if (paying) celebration.current?.play(`Deuda de ${fine.student_name} pagada con éxito`);
+    else toast.success("Multa marcada como pendiente");
     await loadData();
   }
 
