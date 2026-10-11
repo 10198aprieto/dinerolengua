@@ -1,4 +1,4 @@
-const BRAND_LOGO_URL = "https://dinerolengua.lovable.app/la-hucha-de-lengua.svg";
+const BRAND_LOGO_URL = "https://dinerolengua.lovable.app/android-chrome-512x512.png";
 
 const money = (cents: number) => `${(cents / 100).toFixed(2).replace(".", ",")} €`;
 
