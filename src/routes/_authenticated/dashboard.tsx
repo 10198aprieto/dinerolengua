@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Check, ChevronRight, Coins, LogOut, Mail, Pencil, PiggyBank, Plus, Trash2, UserRound, WalletCards, X } from "lucide-react";
+import { Check, ChevronRight, Coins, LogOut, Mail, Pencil, Plus, Trash2, UserRound, WalletCards } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 const logoUrl = "/la-hucha-de-lengua.svg";
@@ -11,6 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { sendStudentReminder } from "@/lib/student-reminder.functions";
+import { PiggyCelebration, type PiggyCelebrationHandle } from "@/components/piggy-celebration";
+import { shouldCelebrateSave } from "@/lib/coin-timeline";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -43,7 +45,7 @@ function Dashboard() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [editing, setEditing] = useState<Fine | null>(null);
   const [loading, setLoading] = useState(true);
-  const [celebrating, setCelebrating] = useState(false);
+  const celebration = useRef<PiggyCelebrationHandle | null>(null);
   const [students, setStudents] = useState<Student[]>([]);
   const [studentsOpen, setStudentsOpen] = useState(false);
   const [allowedClasses, setAllowedClasses] = useState<ClassName[]>([]);
@@ -74,40 +76,6 @@ function Dashboard() {
       toast.error(error instanceof Error ? error.message : "No se pudo enviar el recordatorio");
     }
   }
-  const celebrationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => () => {
-    if (celebrationTimer.current) clearTimeout(celebrationTimer.current);
-  }, []);
-
-  function playCoinSound() {
-    const context = new AudioContext();
-    const now = context.currentTime;
-    const gain = context.createGain();
-    gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.exponentialRampToValueAtTime(0.2, now + 0.012);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.36);
-    gain.connect(context.destination);
-
-    [1046, 1568].forEach((frequency, index) => {
-      const oscillator = context.createOscillator();
-      oscillator.type = "sine";
-      oscillator.frequency.setValueAtTime(frequency, now + index * 0.07);
-      oscillator.frequency.exponentialRampToValueAtTime(frequency * 0.82, now + 0.22 + index * 0.07);
-      oscillator.connect(gain);
-      oscillator.start(now + index * 0.07);
-      oscillator.stop(now + 0.3 + index * 0.07);
-    });
-    window.setTimeout(() => void context.close(), 500);
-  }
-
-  function celebrateDeposit() {
-    if (celebrationTimer.current) clearTimeout(celebrationTimer.current);
-    setCelebrating(true);
-    playCoinSound();
-    celebrationTimer.current = setTimeout(() => setCelebrating(false), 2200);
-  }
-
   async function loadData() {
     const [{ data: fineRows, error }, { data: profile }, { data: studentRows }, { data: roleRows }] = await Promise.all([
       supabase.from("fines").select("*").order("occurred_on", { ascending: false }).order("created_at", { ascending: false }),
@@ -157,6 +125,7 @@ function Dashboard() {
     if (!studentName) { toast.error("Elige o escribe un alumno"); return; }
     const amountCents = Math.round(Number(String(form.get("amount_euros") ?? "").replace(",", ".")) * 100);
     if (!Number.isFinite(amountCents) || amountCents <= 0 || amountCents > 100000) { toast.error("Escribe un importe válido en euros (máx. 1000 €)"); return; }
+    celebration.current?.prepare();
     const studentId = await ensureStudent(studentName, activeClass);
     const payload = {
       teacher_id: user.id,
@@ -179,7 +148,7 @@ function Dashboard() {
     toast.success(wasEditing ? "Multa actualizada" : "Multa añadida");
     setDialogOpen(false);
     setEditing(null);
-    if (!wasEditing) celebrateDeposit();
+    if (shouldCelebrateSave(!result.error, wasEditing ? "edit" : "create")) celebration.current?.play();
     await loadData();
   }
 
@@ -320,21 +289,7 @@ function Dashboard() {
           </form>
         </DialogContent>
       </Dialog>
-      {celebrating && (
-        <div className="piggy-celebration fixed inset-0 z-50 grid place-items-center bg-foreground/25 px-4" role="status" aria-live="polite">
-          <div className="relative flex w-full max-w-xs flex-col items-center rounded-md border border-border bg-card px-6 pb-7 pt-12 text-center shadow-xl">
-            <Button variant="ghost" size="icon" className="absolute right-2 top-2" onClick={() => setCelebrating(false)} aria-label="Cerrar animación" title="Cerrar">
-              <X />
-            </Button>
-            <div className="piggy-scene relative mb-4 h-32 w-44" aria-hidden="true">
-              {[0, 1, 2].map((coin) => <span key={coin} className={`falling-coin falling-coin-${coin}`}>€</span>)}
-              <PiggyBank className="piggy-bank absolute bottom-0 left-1/2 size-28 -translate-x-1/2 text-primary" strokeWidth={1.7} />
-            </div>
-            <p className="font-display text-2xl font-bold">¡A la hucha!</p>
-            <p className="mt-1 text-sm text-muted-foreground">La multa se ha guardado correctamente.</p>
-          </div>
-        </div>
-      )}
+      <PiggyCelebration ref={celebration} />
     </main>
   );
 }
