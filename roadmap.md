@@ -19,3 +19,4 @@
 - [x] Mejorar el patrocinio de ArroyoBUS en el pie de la portada.
 - [x] Quitar la ventana emergente tipo anuncio (el usuario ya no la quiere).
 - [x] Quitar todo el patrocinio de ArroyoBUS (pie de página y logo).
+- [x] Mostrar el cerdito al añadir y editar multas, sincronizado con el MP3 facilitado.

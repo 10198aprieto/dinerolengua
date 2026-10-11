@@ -164,11 +164,9 @@
   .record-row { transition: transform 160ms ease, border-color 160ms ease; }
   .record-row:hover { transform: translateY(-1px); border-color: var(--primary); }
   .piggy-celebration { animation: celebration-in 180ms ease-out both; }
-  .piggy-bank { animation: piggy-bounce 560ms 540ms cubic-bezier(.2,.9,.3,1.25) both; filter: drop-shadow(0 5px 0 var(--border)); }
+  .piggy-bank { filter: drop-shadow(0 5px 0 var(--border)); }
   .falling-coin { position: absolute; top: 0; left: 50%; z-index: 1; display: grid; width: 2rem; height: 2rem; place-items: center; border: 2px solid var(--warning); border-radius: 999px; background: var(--warning-soft); color: var(--warning); font-family: var(--font-display); font-weight: 800; opacity: 0; }
-  .falling-coin-0 { margin-left: -1rem; animation: coin-drop 720ms 100ms cubic-bezier(.35,.05,.5,1) both; }
-  .falling-coin-1 { margin-left: -3.4rem; animation: coin-drop-left 760ms 330ms cubic-bezier(.35,.05,.5,1) both; }
-  .falling-coin-2 { margin-left: 1.4rem; animation: coin-drop-right 740ms 520ms cubic-bezier(.35,.05,.5,1) both; }
+  .falling-coin { margin-left: -1rem; }
 }
 
 @keyframes celebration-in { from { opacity: 0; } to { opacity: 1; } }
