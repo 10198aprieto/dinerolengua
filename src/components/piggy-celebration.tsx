@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import coinAudio from "@/assets/coin-sound.mp3.asset.json";
 import { coinFrame, COIN_AUDIO_DURATION, COIN_IMPACTS } from "@/lib/coin-timeline";
 
-export type PiggyCelebrationHandle = { prepare: () => void; play: () => void };
+export type PiggyCelebrationHandle = { prepare: () => void; play: (message?: string) => void };
 
 export function PiggyCelebration({ ref }: { ref: Ref<PiggyCelebrationHandle> }) {
   const [visible, setVisible] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
   const context = useRef<AudioContext | null>(null);
   const buffer = useRef<Promise<AudioBuffer | null> | null>(null);
   const source = useRef<AudioBufferSourceNode | null>(null);
@@ -36,8 +37,9 @@ export function PiggyCelebration({ ref }: { ref: Ref<PiggyCelebrationHandle> }) 
     void context.current.resume().catch(() => {});
   }
 
-  async function play() {
+  async function play(customMessage?: string) {
     dismiss();
+    setMessage(customMessage ?? null);
     const currentGeneration = generation.current;
     prepare();
     const decoded = await buffer.current;
@@ -73,7 +75,7 @@ export function PiggyCelebration({ ref }: { ref: Ref<PiggyCelebrationHandle> }) 
     frame.current = requestAnimationFrame(tick);
   }
 
-  useImperativeHandle(ref, () => ({ prepare, play: () => { void play(); } }));
+  useImperativeHandle(ref, () => ({ prepare, play: (message?: string) => { void play(message); } }));
   useEffect(() => () => {
     generation.current += 1;
     cancelAnimationFrame(frame.current);
@@ -90,8 +92,8 @@ export function PiggyCelebration({ ref }: { ref: Ref<PiggyCelebrationHandle> }) 
           {COIN_IMPACTS.map((impact, index) => <span key={impact} ref={(element) => { coins.current[index] = element; }} className="falling-coin">€</span>)}
           <PiggyBank ref={piggy} className="piggy-bank absolute bottom-0 left-1/2 size-28 -translate-x-1/2 text-primary" strokeWidth={1.7} />
         </div>
-        <p className="font-display text-2xl font-bold">¡A la hucha!</p>
-        <p className="mt-1 text-sm text-muted-foreground">La multa se ha guardado correctamente.</p>
+        <p className="font-display text-2xl font-bold break-words">{message ?? "¡A la hucha!"}</p>
+        <p className="mt-1 text-sm text-muted-foreground">{message ? "El dinero ya está en la hucha." : "La multa se ha guardado correctamente."}</p>
       </div>
     </div>
   );
