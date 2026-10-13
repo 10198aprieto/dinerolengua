@@ -1,8 +1,9 @@
 import { useEffect, useImperativeHandle, useRef, useState, type Ref } from "react";
 import { PiggyBank, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import coinAudio from "@/assets/coin-sound.mp3.asset.json";
 import { coinFrame, COIN_AUDIO_DURATION, COIN_IMPACTS } from "@/lib/coin-timeline";
+
+const COIN_AUDIO_URL = "/coin-sound.mp3";
 
 export type PiggyCelebrationHandle = { prepare: () => void; play: (message?: string) => void };
 
