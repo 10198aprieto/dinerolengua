@@ -1,8 +1,9 @@
 import { useEffect, useImperativeHandle, useRef, useState, type Ref } from "react";
 import { PiggyBank, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import coinAudio from "@/assets/coin-sound.mp3.asset.json";
 import { coinFrame, COIN_AUDIO_DURATION, COIN_IMPACTS } from "@/lib/coin-timeline";
+
+const COIN_AUDIO_URL = "/coin-sound.mp3";
 
 export type PiggyCelebrationHandle = { prepare: () => void; play: (message?: string) => void };
 
@@ -29,7 +30,7 @@ export function PiggyCelebration({ ref }: { ref: Ref<PiggyCelebrationHandle> }) 
     if (!context.current) {
       context.current = new AudioContext();
       const audioContext = context.current;
-      buffer.current = fetch(coinAudio.url)
+      buffer.current = fetch(COIN_AUDIO_URL)
         .then((response) => { if (!response.ok) throw new Error("Audio unavailable"); return response.arrayBuffer(); })
         .then((data) => audioContext.decodeAudioData(data))
         .catch(() => null);
