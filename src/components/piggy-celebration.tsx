@@ -30,7 +30,7 @@ export function PiggyCelebration({ ref }: { ref: Ref<PiggyCelebrationHandle> }) 
     if (!context.current) {
       context.current = new AudioContext();
       const audioContext = context.current;
-      buffer.current = fetch(coinAudio.url)
+      buffer.current = fetch(COIN_AUDIO_URL)
         .then((response) => { if (!response.ok) throw new Error("Audio unavailable"); return response.arrayBuffer(); })
         .then((data) => audioContext.decodeAudioData(data))
         .catch(() => null);
