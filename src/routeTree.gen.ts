@@ -11,6 +11,11 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AvisoLegalRouteImport } from './routes/aviso-legal'
+import { Route as MetodologiaRouteImport } from './routes/metodologia'
+import { Route as PoliticaDeCookiesRouteImport } from './routes/politica-de-cookies'
+import { Route as PoliticaDePrivacidadRouteImport } from './routes/politica-de-privacidad'
+import { Route as TerminosDeUsoRouteImport } from './routes/terminos-de-uso'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as ApiPublicRemindersRouteImport } from './routes/api/public/reminders'
 
@@ -21,6 +26,31 @@ const IndexRoute = IndexRouteImport.update({
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AvisoLegalRoute = AvisoLegalRouteImport.update({
+  id: '/aviso-legal',
+  path: '/aviso-legal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MetodologiaRoute = MetodologiaRouteImport.update({
+  id: '/metodologia',
+  path: '/metodologia',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PoliticaDeCookiesRoute = PoliticaDeCookiesRouteImport.update({
+  id: '/politica-de-cookies',
+  path: '/politica-de-cookies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PoliticaDePrivacidadRoute = PoliticaDePrivacidadRouteImport.update({
+  id: '/politica-de-privacidad',
+  path: '/politica-de-privacidad',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TerminosDeUsoRoute = TerminosDeUsoRouteImport.update({
+  id: '/terminos-de-uso',
+  path: '/terminos-de-uso',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
@@ -36,11 +66,21 @@ const ApiPublicRemindersRoute = ApiPublicRemindersRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/aviso-legal': typeof AvisoLegalRoute
+  '/metodologia': typeof MetodologiaRoute
+  '/politica-de-cookies': typeof PoliticaDeCookiesRoute
+  '/politica-de-privacidad': typeof PoliticaDePrivacidadRoute
+  '/terminos-de-uso': typeof TerminosDeUsoRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/api/public/reminders': typeof ApiPublicRemindersRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/aviso-legal': typeof AvisoLegalRoute
+  '/metodologia': typeof MetodologiaRoute
+  '/politica-de-cookies': typeof PoliticaDeCookiesRoute
+  '/politica-de-privacidad': typeof PoliticaDePrivacidadRoute
+  '/terminos-de-uso': typeof TerminosDeUsoRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/api/public/reminders': typeof ApiPublicRemindersRoute
 }
@@ -48,18 +88,44 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/aviso-legal': typeof AvisoLegalRoute
+  '/metodologia': typeof MetodologiaRoute
+  '/politica-de-cookies': typeof PoliticaDeCookiesRoute
+  '/politica-de-privacidad': typeof PoliticaDePrivacidadRoute
+  '/terminos-de-uso': typeof TerminosDeUsoRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/api/public/reminders': typeof ApiPublicRemindersRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/api/public/reminders'
+  fullPaths:
+    | '/'
+    | '/aviso-legal'
+    | '/metodologia'
+    | '/politica-de-cookies'
+    | '/politica-de-privacidad'
+    | '/terminos-de-uso'
+    | '/dashboard'
+    | '/api/public/reminders'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/api/public/reminders'
+  to:
+    | '/'
+    | '/aviso-legal'
+    | '/metodologia'
+    | '/politica-de-cookies'
+    | '/politica-de-privacidad'
+    | '/terminos-de-uso'
+    | '/dashboard'
+    | '/api/public/reminders'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/aviso-legal'
+    | '/metodologia'
+    | '/politica-de-cookies'
+    | '/politica-de-privacidad'
+    | '/terminos-de-uso'
     | '/_authenticated/dashboard'
     | '/api/public/reminders'
   fileRoutesById: FileRoutesById
@@ -67,6 +133,11 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AvisoLegalRoute: typeof AvisoLegalRoute
+  MetodologiaRoute: typeof MetodologiaRoute
+  PoliticaDeCookiesRoute: typeof PoliticaDeCookiesRoute
+  PoliticaDePrivacidadRoute: typeof PoliticaDePrivacidadRoute
+  TerminosDeUsoRoute: typeof TerminosDeUsoRoute
   ApiPublicRemindersRoute: typeof ApiPublicRemindersRoute
 }
 
@@ -84,6 +155,41 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/aviso-legal': {
+      id: '/aviso-legal'
+      path: '/aviso-legal'
+      fullPath: '/aviso-legal'
+      preLoaderRoute: typeof AvisoLegalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/metodologia': {
+      id: '/metodologia'
+      path: '/metodologia'
+      fullPath: '/metodologia'
+      preLoaderRoute: typeof MetodologiaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/politica-de-cookies': {
+      id: '/politica-de-cookies'
+      path: '/politica-de-cookies'
+      fullPath: '/politica-de-cookies'
+      preLoaderRoute: typeof PoliticaDeCookiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/politica-de-privacidad': {
+      id: '/politica-de-privacidad'
+      path: '/politica-de-privacidad'
+      fullPath: '/politica-de-privacidad'
+      preLoaderRoute: typeof PoliticaDePrivacidadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terminos-de-uso': {
+      id: '/terminos-de-uso'
+      path: '/terminos-de-uso'
+      fullPath: '/terminos-de-uso'
+      preLoaderRoute: typeof TerminosDeUsoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/dashboard': {
@@ -117,6 +223,11 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AvisoLegalRoute: AvisoLegalRoute,
+  MetodologiaRoute: MetodologiaRoute,
+  PoliticaDeCookiesRoute: PoliticaDeCookiesRoute,
+  PoliticaDePrivacidadRoute: PoliticaDePrivacidadRoute,
+  TerminosDeUsoRoute: TerminosDeUsoRoute,
   ApiPublicRemindersRoute: ApiPublicRemindersRoute,
 }
 export const routeTree = rootRouteImport
