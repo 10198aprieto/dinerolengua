@@ -127,7 +127,7 @@ function Index() {
       </header>
 
       <div className="mx-auto max-w-6xl px-4 py-7 sm:px-6 sm:py-10">
-        <div className="mb-7"><p className="mb-1 text-sm font-semibold text-primary">CURSO 2026 · 2027</p><h1 className="font-display text-3xl font-bold sm:text-4xl">Contador de multas</h1><p className="mt-2 text-muted-foreground">Cada palabra cuenta. Cada céntimo también.</p></div>
+        <div className="mb-7"><p className="mb-1 text-sm font-semibold text-primary">CURSO 2026 · 2027</p><h1 className="font-display text-3xl font-bold sm:text-4xl">Contador de multas</h1><p className="mt-2 text-muted-foreground">Para información de en qué consiste el juego, haz click aquí.</p></div>
 
         <div className="mb-6 grid grid-cols-3 gap-2 rounded-md bg-secondary p-1.5">
           {classes.map((className) => <Button key={className} variant={activeClass === className ? "default" : "ghost"} className="h-11" onClick={() => setActiveClass(className)}>{className}</Button>)}
