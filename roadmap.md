@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Añadir metodología del PDF, pie con autoría y copyright, y cuatro páginas legales.
+
 - [x] Configurar Firebase Analytics con las credenciales guardadas.
 - [x] Mostrar públicamente el contador y el historial.
 - [x] Mantener la gestión privada con acceso desde la esquina superior derecha.
