@@ -1,5 +1,8 @@
 # Roadmap
 
+- [x] Añadir metodología del PDF, pie con autoría y copyright, y cuatro páginas legales.
+- [ ] Completar y revisar los documentos legales (pendiente de identidad del titular y responsable, domicilio y contacto de privacidad).
+
 - [x] Configurar Firebase Analytics con las credenciales guardadas.
 - [x] Mostrar públicamente el contador y el historial.
 - [x] Mantener la gestión privada con acceso desde la esquina superior derecha.
@@ -15,7 +18,7 @@
 - [x] Botón manual de recordatorio por correo junto a cada alumno.
 - [x] Adaptar los correos de alumnos y profesores a las plantillas facilitadas.
 - [x] Preparar el despliegue en Vercel (compilación para Vercel verificada y guía GUIA-VERCEL.md).
-- [ ] Apuntar los recordatorios automáticos a la URL definitiva en Vercel (pendiente de que el usuario sincronice con GitHub, despliegue en Vercel y comparta la URL o conecte dinerolengua.es).
+- [ ] Apuntar los recordatorios automáticos a dinerolengua.es (fuera del alcance de esta petición; pendiente de revisar la configuración y credenciales de Vercel).
 - [x] Mejorar el patrocinio de ArroyoBUS en el pie de la portada.
 - [x] Quitar la ventana emergente tipo anuncio (el usuario ya no la quiere).
 - [x] Quitar todo el patrocinio de ArroyoBUS (pie de página y logo).

@@ -13,3 +13,4 @@
 - Self-hosting on Vercel: `vite.config.ts` pins nitro `preset: "vercel"`; Lovable builds override it with `LOVABLE_NITRO_PRESET`, so previews stay on Cloudflare. `.env` is gitignored (holds only public Supabase values) — hosts get env vars from their dashboard; see GUIA-VERCEL.md.
 - Keep student and teacher reminder markup centralized in the shared email-template module so manual and scheduled sends stay visually identical.
 - Keep fine-save celebrations in a shared browser component driven by the audio playback clock, so coin impacts remain synchronized even after a delayed save.
+- Render the shared site footer in the root layout and give each informational document its own public route, shared document layout, and leaf metadata so links and presentation stay consistent.
