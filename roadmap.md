@@ -1,7 +1,8 @@
 # Roadmap
 
 - [x] Añadir metodología del PDF, pie con autoría y copyright, y cuatro páginas legales.
-- [ ] Completar y revisar los documentos legales (pendiente de identidad del titular y responsable, domicilio y contacto de privacidad).
+- [x] Completar los documentos legales con la identidad del titular, NIF, domicilio, teléfono y correo de contacto.
+- [ ] Configurar un mecanismo de consentimiento de cookies que bloquee Analytics y AdSense hasta aceptar.
 
 - [x] Configurar Firebase Analytics con las credenciales guardadas.
 - [x] Mostrar públicamente el contador y el historial.

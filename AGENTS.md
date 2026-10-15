@@ -14,3 +14,4 @@
 - Keep student and teacher reminder markup centralized in the shared email-template module so manual and scheduled sends stay visually identical.
 - Keep fine-save celebrations in a shared browser component driven by the audio playback clock, so coin impacts remain synchronized even after a delayed save.
 - Render the shared site footer in the root layout and give each informational document its own public route, shared document layout, and leaf metadata so links and presentation stay consistent.
+- Keep the site's legal identity (titular, tax id, address, contact channels) in one shared module that every legal document imports, so the four documents never disagree and no draft placeholder survives an update.
