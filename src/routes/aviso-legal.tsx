@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { DocumentPage } from "@/components/document-page";
 import { documentMeta } from "@/lib/document-meta";
-import { CONTACT_CHANNELS, IDENTIFICATION, LEGAL_INFO } from "@/lib/legal-info";
+import { CONTACT_CHANNELS, IDENTIFICATION } from "@/lib/legal-info";
 
 export const Route = createFileRoute("/aviso-legal")({
   head: () => documentMeta("Aviso legal", "Información sobre el titular de La Hucha de Lengua, su finalidad educativa y las condiciones generales del sitio."),
@@ -13,5 +13,3 @@ export const Route = createFileRoute("/aviso-legal")({
     { title: "5. Marco legal y contacto", paragraphs: ["El uso del sitio queda sujeto a la normativa española y europea que resulte aplicable. Ningún texto de esta página limita derechos imperativos de los usuarios.", `Para cualquier comunicación relacionada con este sitio puede utilizarse el siguiente canal: ${CONTACT_CHANNELS}`] },
   ]} />,
 });
-
-export { LEGAL_INFO };
