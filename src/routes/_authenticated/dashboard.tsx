@@ -285,14 +285,17 @@ function Dashboard() {
       </Dialog>
       <Dialog open={studentsOpen} onOpenChange={setStudentsOpen}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
-          <DialogHeader><DialogTitle className="font-display text-2xl">Alumnos de {activeClass}</DialogTitle><DialogDescription>Añade su correo para que reciban cada viernes a las 7:00 un recordatorio de lo que deben.</DialogDescription></DialogHeader>
+          <DialogHeader><DialogTitle className="font-display text-2xl">Alumnos de {activeClass}</DialogTitle><DialogDescription>Añade su correo para que reciban el recordatorio de lo que deben. El botón {money(QUICK_FINE_CENTS)} les anota una multa directa.</DialogDescription></DialogHeader>
           {students.filter((s) => s.class_name === activeClass).length === 0 ? (
             <p className="py-6 text-center text-sm text-muted-foreground">Los alumnos aparecerán aquí al ponerles su primera multa.</p>
           ) : (
             <div className="space-y-3">
               {students.filter((s) => s.class_name === activeClass).map((student) => (
                 <form key={student.id} className="space-y-1.5" onSubmit={(e) => { e.preventDefault(); void saveStudentEmail(student, String(new FormData(e.currentTarget).get("email") ?? "")); }}>
-                  <Label htmlFor={`email-${student.id}`}>{student.full_name}</Label>
+                  <div className="flex items-center justify-between gap-2">
+                    <Label htmlFor={`email-${student.id}`}>{student.full_name}</Label>
+                    <Button type="button" size="sm" variant="outline" className="shrink-0" onClick={() => void addQuickFine(student)} disabled={quickBusy === student.id} aria-label={`Añadir ${money(QUICK_FINE_CENTS)} de multa a ${student.full_name}`} title={`Añadir ${money(QUICK_FINE_CENTS)} de multa`}><Plus className="size-3.5" />{money(QUICK_FINE_CENTS)}</Button>
+                  </div>
                   <div className="flex gap-2"><Input id={`email-${student.id}`} name="email" type="email" defaultValue={student.email ?? ""} placeholder="correo@ejemplo.com" maxLength={255} /><Button type="submit" variant="secondary">Guardar</Button><Button type="button" variant="outline" size="icon" onClick={() => void sendReminder(student)} aria-label={`Enviar recordatorio a ${student.full_name}`} title="Enviar recordatorio" disabled={!student.email}><Mail /></Button></div>
                 </form>
               ))}
