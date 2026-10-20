@@ -26,7 +26,7 @@ La web ya está preparada para Vercel. Solo tienes que seguir estos pasos (unos 
 | `SUPABASE_PUBLISHABLE_KEY` | (la misma clave larga que arriba) | Igual que `VITE_SUPABASE_PUBLISHABLE_KEY` |
 | `SUPABASE_SERVICE_ROLE_KEY` | (clave secreta, empieza por `sb_secret_` o `eyJ…`) | En [supabase.com/dashboard](https://supabase.com/dashboard) → tu proyecto → **Project Settings → API Keys** → copia la clave **service_role** (secreta) |
 | `RESEND_API_KEY` | tu clave de Resend | En [resend.com](https://resend.com) → **API Keys** (la misma que ya usas para los correos) |
-| `TEACHER_INVITE_CODE` | `liepins` | El código de invitación que ya conoces |
+| `TEACHER_INVITE_CODE` | `XXXXXXX` | Código de invitación (no visible) |
 | `GOOGLE_API_KEY` | tu clave de Firebase | En [console.firebase.google.com](https://console.firebase.google.com) → tu proyecto → ⚙️ **Configuración del proyecto** → Tus apps → SDK setup and configuration |
 | `GOOGLE_ANALYTICS_MEASUREMENT_ID` | tu `G-XXXXXXXXXX` | En el mismo sitio de Firebase, sección Analytics |
 
