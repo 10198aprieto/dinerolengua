@@ -50,18 +50,16 @@ function Index() {
   const classFines = fines.filter((fine) => fine.class_name === activeClass);
   const filteredFines = classFines.filter((fine) => status === "all" || (status === "paid" ? fine.is_paid : !fine.is_paid));
   const visibleFines = useMemo(() => {
-    const groups = new Map<string, { key: string; student_name: string; amount_cents: number; is_paid: boolean; occurred_on: string }>();
+    const groups = new Map<string, { key: string; student_name: string; paid_cents: number; pending_cents: number; occurred_on: string }>();
     for (const fine of filteredFines) {
-      const key = `${fine.student_id ?? fine.student_name.toLowerCase()}|${fine.is_paid ? "paid" : "pending"}`;
-      const group = groups.get(key);
-      if (group) {
-        group.amount_cents += fine.amount_cents;
-        if (fine.occurred_on > group.occurred_on) group.occurred_on = fine.occurred_on;
-      } else {
-        groups.set(key, { key, student_name: fine.student_name, amount_cents: fine.amount_cents, is_paid: fine.is_paid, occurred_on: fine.occurred_on });
-      }
+      const key = fine.student_name.normalize("NFC").trim().replace(/\s+/g, " ").toLocaleLowerCase("es");
+      const group = groups.get(key) ?? { key, student_name: fine.student_name.trim(), paid_cents: 0, pending_cents: 0, occurred_on: fine.occurred_on };
+      if (fine.is_paid) group.paid_cents += fine.amount_cents;
+      else group.pending_cents += fine.amount_cents;
+      if (fine.occurred_on > group.occurred_on) group.occurred_on = fine.occurred_on;
+      groups.set(key, group);
     }
-    return [...groups.values()].sort((a, b) => b.occurred_on.localeCompare(a.occurred_on));
+    return [...groups.values()].sort((a, b) => b.pending_cents - a.pending_cents || b.occurred_on.localeCompare(a.occurred_on));
   }, [filteredFines]);
   const totals = useMemo(() => {
     const paid = classFines.filter((fine) => fine.is_paid).reduce((sum, fine) => sum + fine.amount_cents, 0);
@@ -149,13 +147,16 @@ function Index() {
           {loading ? <div className="py-16 text-center text-muted-foreground">Cargando registros…</div> : visibleFines.length === 0 ? (
             <div className="empty-state py-16 text-center"><Coins className="mx-auto mb-4 size-10 text-muted-foreground" /><h3 className="font-display text-xl font-bold">La hucha está vacía</h3><p className="mt-1 text-sm text-muted-foreground">No hay multas en esta vista.</p></div>
           ) : (
-            <div className="space-y-2">{visibleFines.map((fine) => (
-              <article key={fine.key} className="record-row grid grid-cols-[1fr_auto] items-center gap-3 rounded-md border border-border bg-card px-4 py-3 sm:grid-cols-[1fr_120px_130px]">
-                <div className="min-w-0"><p className="truncate font-semibold">{fine.student_name}</p><p className="truncate text-xs text-muted-foreground">Última multa: {new Date(`${fine.occurred_on}T12:00:00`).toLocaleDateString("es-ES", { day: "numeric", month: "short", year: "numeric" })}</p></div>
-                <p className="font-display text-xl font-bold">{money(fine.amount_cents)}</p>
-                <div className={`inline-flex h-9 items-center gap-2 justify-self-start rounded-md border px-3 text-sm font-medium ${fine.is_paid ? "bg-secondary" : "bg-background"}`}>{fine.is_paid ? <Check className="size-4" /> : <ChevronRight className="size-4" />}{fine.is_paid ? "Pagado" : "Debe"}</div>
-              </article>
-            ))}</div>
+            <div className="space-y-2">{visibleFines.map((fine) => {
+              const owes = fine.pending_cents > 0;
+              return (
+                <article key={fine.key} className="record-row grid grid-cols-[1fr_auto] items-center gap-3 rounded-md border border-border bg-card px-4 py-3 sm:grid-cols-[1fr_120px_130px]">
+                  <div className="min-w-0"><p className="truncate font-semibold">{fine.student_name}</p><p className="truncate text-xs text-muted-foreground">{owes && fine.paid_cents > 0 && <>Ya pagado: {money(fine.paid_cents)} · </>}Última multa: {new Date(`${fine.occurred_on}T12:00:00`).toLocaleDateString("es-ES", { day: "numeric", month: "short", year: "numeric" })}</p></div>
+                  <p className="font-display text-xl font-bold">{money(owes ? fine.pending_cents : fine.paid_cents)}</p>
+                  <div className={`inline-flex h-9 items-center gap-2 justify-self-start rounded-md border px-3 text-sm font-medium ${owes ? "bg-background" : "bg-secondary"}`}>{owes ? <ChevronRight className="size-4" /> : <Check className="size-4" />}{owes ? "Debe" : "Pagado"}</div>
+                </article>
+              );
+            })}</div>
           )}
         </section>
       </div>
